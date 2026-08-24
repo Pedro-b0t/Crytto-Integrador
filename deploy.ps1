@@ -17,8 +17,8 @@ if (-not $vagrantCmd) {
 $ansibleMode = "native"
 if (-not (Get-Command ansible-playbook -ErrorAction SilentlyContinue)) {
     if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
-        & wsl.exe ansible-playbook --version 2>$null
-        if ($LASTEXITCODE -eq 0) {
+        $wslAnsible = & wsl.exe sh -lc "command -v ansible-playbook" 2>$null
+        if ($LASTEXITCODE -eq 0 -and $wslAnsible) {
             $ansibleMode = "wsl"
         }
     }
@@ -26,7 +26,7 @@ if (-not (Get-Command ansible-playbook -ErrorAction SilentlyContinue)) {
 if ($ansibleMode -eq "native") {
     $ansibleCommand = (Get-Command ansible-playbook -ErrorAction SilentlyContinue)
     if (-not $ansibleCommand) {
-        Write-Error "ERRO: Ansible não encontrado. Instale-o no WSL com: sudo apt update; sudo apt install -y ansible"
+        Write-Error "ERRO: Ansible não encontrado. Abra o Ubuntu/WSL e execute: sudo apt update; sudo apt install -y ansible. Depois rode .\deploy.ps1 novamente."
         exit 1
     }
 }
