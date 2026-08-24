@@ -1,4 +1,4 @@
-# deploy.ps1 - Provisiona VM local (VirtualBox) e sobe a aplicação com Ansible + Docker Compose.
+# deploy.ps1 - Provisiona as VMs e sobe a aplicação com Vagrant + Docker Compose.
 
 $ErrorActionPreference = "Stop"
 
@@ -14,36 +14,27 @@ if (-not $vagrantCmd) {
     exit 1
 }
 
-$ansibleMode = "native"
-if (-not (Get-Command ansible-playbook -ErrorAction SilentlyContinue)) {
-    if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
-        $wslAnsible = & wsl.exe sh -lc "command -v ansible-playbook" 2>$null
-        if ($LASTEXITCODE -eq 0 -and $wslAnsible) {
-            $ansibleMode = "wsl"
-        }
-    }
-}
-if ($ansibleMode -eq "native") {
-    $ansibleCommand = (Get-Command ansible-playbook -ErrorAction SilentlyContinue)
-    if (-not $ansibleCommand) {
-        Write-Error "ERRO: Ansible não encontrado. Abra o Ubuntu/WSL e execute: sudo apt update; sudo apt install -y ansible. Depois rode .\deploy.ps1 novamente."
-        exit 1
-    }
-}
+Write-Host "==> Criando/iniciando as VMs" -ForegroundColor Cyan
+& $vagrantCmd.Source up app --no-provision
+& $vagrantCmd.Source up db --no-provision
 
-Write-Host "==> Subindo VM" -ForegroundColor Cyan
-& $vagrantCmd.Source up
+Write-Host "==> Provisionando a VM do banco" -ForegroundColor Cyan
+& $vagrantCmd.Source provision db
+if ($LASTEXITCODE -ne 0) { throw "O provisionamento da VM db falhou com código $LASTEXITCODE." }
 
-Write-Host "==> Aplicando provisionamento idempotente" -ForegroundColor Cyan
-if ($ansibleMode -eq "wsl") {
-    & wsl.exe ansible-playbook -i infra/ansible/inventory.ini infra/ansible/playbook.yml
-} else {
-    & ansible-playbook -i infra/ansible/inventory.ini infra/ansible/playbook.yml
+Write-Host "==> Provisionando a VM da aplicação" -ForegroundColor Cyan
+& $vagrantCmd.Source provision app
+if ($LASTEXITCODE -ne 0) { throw "O provisionamento da VM app falhou com código $LASTEXITCODE." }
+
+function Get-ForwardedPort([string]$machine, [int]$guestPort) {
+    $line = & $vagrantCmd.Source port $machine | Select-String -Pattern "^\s*$guestPort\s+\(guest\)\s+=>" | Select-Object -Last 1
+    if (-not $line) { throw "Não foi possível descobrir a porta encaminhada $guestPort da VM $machine." }
+    return [int]([regex]::Match($line.ToString(), "=>\s*(\d+)").Groups[1].Value)
 }
 
-$frontendPort = ((& $vagrantCmd.Source port app 80) | Select-String -Pattern ":" | Select-Object -Last 1).ToString().Split(":")[-1].Trim()
-$backendPort = ((& $vagrantCmd.Source port app 3001) | Select-String -Pattern ":" | Select-Object -Last 1).ToString().Split(":")[-1].Trim()
-$dbPort = ((& $vagrantCmd.Source port db 5432) | Select-String -Pattern ":" | Select-Object -Last 1).ToString().Split(":")[-1].Trim()
+$frontendPort = Get-ForwardedPort "app" 80
+$backendPort = Get-ForwardedPort "app" 3001
+$dbPort = Get-ForwardedPort "db" 5432
 
 Write-Host ""
 Write-Host "Deploy VM concluído" -ForegroundColor Green

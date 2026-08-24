@@ -30,10 +30,10 @@ Versão independente do projeto original, preparada para execução e deploy em 
 
 1. VirtualBox instalado.
 2. Vagrant instalado.
-3. Ansible instalado na máquina de controle ou no WSL (recomendado no Windows).
-4. Docker não é obrigatório no host, pois será instalado nas VMs.
+3. Docker não é obrigatório no host, pois será instalado nas VMs.
+4. Ansible é opcional no Windows: o `deploy.ps1` usa o provisionamento interno do Vagrant.
 
-No Windows, instale o WSL e o Ansible uma vez:
+Para usar o playbook Ansible manualmente, instale o WSL e o Ansible:
 
 ```powershell
 wsl --install -d Ubuntu
@@ -54,7 +54,7 @@ sudo apt install -y ansible
 .\deploy.ps1
 ```
 
-O script usa Ansible nativo quando disponível ou Ansible instalado no WSL automaticamente.
+O script instala Docker dentro das VMs e inicia os serviços automaticamente; não depende de Ansible instalado no Windows/WSL.
 
 ### Linux/macOS
 
@@ -76,7 +76,7 @@ vagrant up
 ansible-playbook -i infra/ansible/inventory.ini infra/ansible/playbook.yml
 ```
 
-No Windows sem Ansible nativo, execute o segundo comando dentro do Ubuntu/WSL a partir desta pasta.
+No Windows, o segundo comando exige Ansible no WSL e é opcional, pois `deploy.ps1` já provisiona as VMs pelo Vagrant.
 
 ## Validações
 
