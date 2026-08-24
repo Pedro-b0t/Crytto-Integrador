@@ -9,7 +9,7 @@
         name:
           - ca-certificates
           - docker.io
-          - docker-compose-plugin
+          - docker-compose
           - rsync
         state: present
 
@@ -36,7 +36,7 @@
     - name: Sincronizar codigo para diretorio da aplicacao
       ansible.builtin.command:
         cmd: >-
-          rsync -a --delete --itemize-changes
+          rsync -a --itemize-changes
           --exclude .git
           --exclude .github
           --exclude node_modules
@@ -63,7 +63,7 @@
   tasks:
     - name: Subir stack do banco
       ansible.builtin.command:
-        cmd: docker compose -f docker-compose.db.yml up -d
+        cmd: docker-compose -f docker-compose.db.yml up -d
         chdir: "{{ app_dir }}"
 
     - name: Validar porta do Postgres
@@ -79,7 +79,7 @@
   tasks:
     - name: Subir stack da aplicacao
       ansible.builtin.command:
-        cmd: docker compose -f docker-compose.app.yml up -d --build
+        cmd: docker-compose -f docker-compose.app.yml up -d --build
         chdir: "{{ app_dir }}"
 
     - name: Validar backend

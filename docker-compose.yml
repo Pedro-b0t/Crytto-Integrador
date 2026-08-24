@@ -27,7 +27,7 @@ services:
       PGSSL: ${PGSSL:-false}
       FRONTEND_URL: ${FRONTEND_URL:-}
     ports:
-      - "3001:3001"
+      - "${BACKEND_HOST_PORT:-3001}:3001"
 
   frontend:
     build:
@@ -39,7 +39,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:80"
+      - "${FRONTEND_HOST_PORT:-80}:80"
 
 volumes:
   db_data:

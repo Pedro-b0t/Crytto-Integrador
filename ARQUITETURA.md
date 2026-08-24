@@ -2,7 +2,9 @@
 
 > **Versão:** 2.0  
 > **Última atualização:** 14/08/2026  
-> **Repositório:** https://github.com/victorsilv19/Crytto-RPG-Platform
+> **Repositório:** https://github.com/Pedro-b0t/Crytto-Integrador
+>
+> **Nota da versão v2:** este repositório é executado em duas VMs Ubuntu (app e db) com VirtualBox/Vagrant, Ansible e Docker Compose. As referências históricas a Cloud Run, GitHub Actions e WIF abaixo pertencem à versão original e não fazem parte do fluxo de execução desta v2.
 
 ---
 
@@ -25,7 +27,7 @@
 
 ## 1. Visão Geral
 
-A **Crytto RPG Platform** é uma aplicação web para *streaming*, gerenciamento de sessões e comércio de itens de RPG. A solução é composta por um **frontend React (SPA)** e um **backend Node.js/Express** com **PostgreSQL gerenciado**, ambos containerizados e implantados no **Google Cloud Run**. O ciclo completo de integração, testes, análise de qualidade e implantação é automatizado por uma **pipeline de CI/CD** implementada em **GitHub Actions**, com autenticação segura no GCP via **Workload Identity Federation (WIF)** — sem uso de chaves JSON.
+A **Crytto RPG Platform v2** é uma aplicação web para *streaming*, gerenciamento de sessões e comércio de itens de RPG. A solução é composta por um **frontend React (SPA)**, um **backend Node.js/Express** e um **PostgreSQL**, todos executados em Docker Compose sobre VMs Ubuntu provisionadas por Vagrant e configuradas com Ansible.
 
 ---
 

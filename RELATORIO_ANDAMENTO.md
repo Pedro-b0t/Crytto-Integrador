@@ -2,7 +2,9 @@
 
 > **Data do relatório:** 14/08/2026
 > **Versão:** 2.0 (atualização do relatório de 07/08/2026)
-> **Repositório:** https://github.com/victorsilv19/Crytto-RPG-Platform
+> **Repositório:** https://github.com/Pedro-b0t/Crytto-Integrador
+>
+> **Nota da versão v2:** o fluxo atual desta entrega usa VirtualBox/Vagrant, Ansible e Docker Compose em duas VMs. Os registros de Cloud Run e CI/CD abaixo são histórico da versão original.
 
 ---
 

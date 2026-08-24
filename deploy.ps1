@@ -14,16 +14,32 @@ if (-not $vagrantCmd) {
     exit 1
 }
 
+$ansibleMode = "native"
 if (-not (Get-Command ansible-playbook -ErrorAction SilentlyContinue)) {
-    Write-Error "ERRO: ansible-playbook não encontrado no PATH."
-    exit 1
+    if (Get-Command wsl.exe -ErrorAction SilentlyContinue) {
+        & wsl.exe ansible-playbook --version 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $ansibleMode = "wsl"
+        }
+    }
+}
+if ($ansibleMode -eq "native") {
+    $ansibleCommand = (Get-Command ansible-playbook -ErrorAction SilentlyContinue)
+    if (-not $ansibleCommand) {
+        Write-Error "ERRO: Ansible não encontrado. Instale-o no WSL com: sudo apt update; sudo apt install -y ansible"
+        exit 1
+    }
 }
 
 Write-Host "==> Subindo VM" -ForegroundColor Cyan
 & $vagrantCmd.Source up
 
 Write-Host "==> Aplicando provisionamento idempotente" -ForegroundColor Cyan
-ansible-playbook -i infra/ansible/inventory.ini infra/ansible/playbook.yml
+if ($ansibleMode -eq "wsl") {
+    & wsl.exe ansible-playbook -i infra/ansible/inventory.ini infra/ansible/playbook.yml
+} else {
+    & ansible-playbook -i infra/ansible/inventory.ini infra/ansible/playbook.yml
+}
 
 $frontendPort = ((& $vagrantCmd.Source port app 80) | Select-String -Pattern ":" | Select-Object -Last 1).ToString().Split(":")[-1].Trim()
 $backendPort = ((& $vagrantCmd.Source port app 3001) | Select-String -Pattern ":" | Select-Object -Last 1).ToString().Split(":")[-1].Trim()
