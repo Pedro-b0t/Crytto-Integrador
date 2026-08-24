@@ -1,0 +1,20 @@
+node_modules/
+dist/
+coverage/
+.env
+.vagrant/
+.ansible/
+*.db
+.DS_Store
+
+# Logs
+*.log
+
+# Pastas de trabalho / splits de zip
+commit-splits/
+
+# Arquivo auxiliar de instrucoes do zip
+LEIA-ME.md
+
+# Cobertura de testes
+backend/coverage/

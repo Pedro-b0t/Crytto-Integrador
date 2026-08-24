@@ -1,0 +1,12 @@
+app_dir: /opt/crytto-rpg-platform-v2
+backend_port: 3001
+backend_host: 0.0.0.0
+db_host: 192.168.56.22
+db_port: 5432
+db_user: crytto
+db_password: crytto
+db_name: crytto
+database_url: postgres://crytto:crytto@192.168.56.22:5432/crytto
+pgssl: "false"
+frontend_url: ""
+vite_api_url: ""

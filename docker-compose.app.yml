@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      PORT: ${PORT:-3001}
+      HOST: ${HOST:-0.0.0.0}
+      DATABASE_URL: ${DATABASE_URL:-postgres://crytto:crytto@192.168.56.22:5432/crytto}
+      PGSSL: ${PGSSL:-false}
+      FRONTEND_URL: ${FRONTEND_URL:-}
+    ports:
+      - "3001:3001"
+
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
