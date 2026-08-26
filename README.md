@@ -24,6 +24,7 @@ Versão independente do projeto original, preparada para execução e deploy em 
 - `infra/ansible/group_vars/all.yml`: variáveis parametrizáveis.
 - `infra/ansible/templates/app.env.j2`: template dinâmico de ambiente.
 - `infra/ansible/playbook.yml`: provisionamento idempotente e deploy da stack.
+- `infra/ansible/README.md`: guia separado da automação Ansible.
 - `deploy.ps1` / `deploy.sh`: execução automatizada ponta a ponta.
 
 ## Pré-requisitos
@@ -77,6 +78,8 @@ ansible-playbook -i infra/ansible/inventory.ini infra/ansible/playbook.yml
 ```
 
 No Windows, o segundo comando exige Ansible no WSL e é opcional, pois `deploy.ps1` já provisiona as VMs pelo Vagrant.
+
+O código Ansible está separado em [infra/ansible](./infra/ansible/README.md).
 
 ## Validações
 
