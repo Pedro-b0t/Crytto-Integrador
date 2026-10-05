@@ -1,0 +1,70 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="arq" name="Arquitetura">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="gcp" value="Google Cloud Platform - regiao us-central1 / zona us-central1-a" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="20" width="900" height="640" as="geometry"/>
+        </mxCell>
+        <mxCell id="vpc" value="vpc-grupo-x - 10.20.0.0/16" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="60" width="860" height="580" as="geometry"/>
+        </mxCell>
+        <mxCell id="pub" value="pub-a - 10.20.1.0/24 (publica)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="110" width="380" height="340" as="geometry"/>
+        </mxCell>
+        <mxCell id="priv" value="priv-a - 10.20.10.0/24 (privada)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="110" width="380" height="340" as="geometry"/>
+        </mxCell>
+        <mxCell id="bastion" value="vm-bastion&#xa;e2-micro | 10.20.1.10&#xa;IP publico estatico&#xa;sg-bastion: TCP 22 do IP do grupo /32" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="260" y="160" width="340" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="app" value="vm-app&#xa;e2-small | 10.20.1.20 | IP publico estatico&#xa;nginx + React + API Node.js&#xa;sg-app: TCP 80/443 de 0.0.0.0/0; TCP 22 de sg-bastion" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="260" y="310" width="340" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="db" value="vm-db&#xa;e2-small | 10.20.10.10 | SEM IP publico&#xa;PostgreSQL 16&#xa;sg-db: TCP 5432 de sg-app; TCP 22 de sg-bastion" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="700" y="310" width="340" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="igw" value="Gateway de internet (default-internet-gateway)&#xa;rota 0.0.0.0/0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="240" y="490" width="380" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="nat" value="Cloud Router + Cloud NAT (nat-grupo-x)&#xa;atende somente priv-a" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="680" y="490" width="380" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="user" value="Usuario final" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="380" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="admin" value="Administrador&#xa;(IP do grupo /32)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="170" width="30" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="net" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="700" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1a" value="1 - HTTP/HTTPS 80/443" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#b85450;fontStyle=1;" edge="1" parent="1" source="user" target="igw">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1b" value="1" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#b85450;fontStyle=1;" edge="1" parent="1" source="igw" target="app">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2a" value="2 - SSH 22" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;" edge="1" parent="1" source="admin" target="bastion">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2b" value="2 - SSH 22" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;" edge="1" parent="1" source="bastion" target="db">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3a" value="3 - saida (apt, docker pull)" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2d7600;fontStyle=1;" edge="1" parent="1" source="db" target="nat">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3b" value="3" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2d7600;fontStyle=1;" edge="1" parent="1" source="nat" target="net">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="fapp" value="TCP 5432" style="endArrow=classic;html=1;strokeWidth=1;" edge="1" parent="1" source="app" target="db">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend" value="Fluxos: 1 usuario final acessa a aplicacao | 2 administrador acessa por SSH | 3 instancia privada acessa a internet pelo NAT" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="220" y="660" width="500" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
