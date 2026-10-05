@@ -95,7 +95,7 @@ Na GCP, o papel de "security group" é feito por regras de firewall da VPC com t
 
 | Grupo de segurança | Direção | Protocolo | Porta | Origem/Destino | Justificativa |
 |---|---|---|---|---|---|
-| `sg-bastion` (tag `bastion`) | Entrada | TCP | 22 | IP público do grupo (`/32`) | Acesso administrativo restrito ao IP do grupo; SSH nunca liberado para `0.0.0.0/0` |
+| `sg-bastion` (tag `bastion`) | Entrada | TCP | 22 | IP público autorizado do administrador (`/32`) | Acesso administrativo restrito ao IP autorizado; atualizar a regra quando esse IP mudar; SSH nunca liberado para `0.0.0.0/0` |
 | `sg-app` (tag `app`) | Entrada | TCP | 80, 443 | `0.0.0.0/0` | Acesso público ao frontend e à API |
 | `sg-app` | Entrada | TCP | 22 | `sg-bastion` (tag `bastion`) | SSH apenas via bastion |
 | `sg-db` (tag `db`) | Entrada | TCP | 5432 | `sg-app` (tag `app`) | Banco acessível somente pela aplicação |
