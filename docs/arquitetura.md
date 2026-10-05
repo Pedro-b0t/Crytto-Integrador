@@ -143,7 +143,8 @@ Calculadora oficial: Google Cloud Pricing Calculator.
 
 - Cenário A: https://cloud.google.com/products/calculator?hl=pt-BR&dl=CjhDaVF6WWpReU9HUmlNQzB6TldVMkxUUmxNMkl0T1RKbE15MHhZakppTkRFeU5EUXlZelFRQVE9PRAIGiQyQ0M3NzY1OS01Q0VDLTQ0RDktQTc2Qy01MDk1QkM5RTQwNjE
 - Cenário B: https://cloud.google.com/products/calculator?hl=pt-BR&dl=CjhDaVE1T1Roa05qbGxNUzB5T1ROa0xUUTNOVEl0T1RVME5TMHlabVUzTlRabU1XWm1NREVRQVE9PRAOGiQ5OEM0REQ3Qy1COTY5LTQxMDAtQjQ2NC0yOTgyRDlGRDYxQUQ
-- Exportação: [custos/estimativa.pdf](custos/estimativa.pdf)
+- Exportação do cenário A: [custos/estimativa-cenario-a.pdf](custos/estimativa-cenario-a.pdf)
+- Exportação do cenário B: [custos/estimativa-cenario-b.pdf](custos/estimativa-cenario-b.pdf)
 - Valores em dólares (US$), região Iowa (`us-central1`), preço sob demanda, sem desconto de conta de faturamento.
 
 **Cenários**
