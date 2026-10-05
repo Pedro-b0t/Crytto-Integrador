@@ -14,14 +14,14 @@
 |---|---|
 | **Product Owner (P.O.)** | Pedro Henrique de Oliveira |
 | **Scrum Master** | Victor Nascimento Silva |
-| **Desenvolvedor** | Pablo Alberto Centurion Leguizamon Junior |
-| **Desenvolvedor** | Felipe Jacinto Camilo |
+| **Desenvolvedor** | Ana Luiza Ripoli Theodorovitz |
+| **Desenvolvedor** | João Pedro Foster Ruiz |
 
 ### Responsabilidades por papel
 
 - **Product Owner (Pedro Henrique):** priorização do backlog, definição de escopo e critérios de aceite, aprovação de releases.
 - **Scrum Master (Victor):** condução das cerimônias, remoção de impedimentos, garantia da aderência ao processo ágil, gestão do repositório e da pipeline de CI/CD.
-- **Devs (Pablo e Felipe):** implementação do frontend, backend, testes automatizados e integração com serviços em nuvem.
+- **Devs (Ana e João):** implementação do frontend, backend, testes automatizados e integração com serviços em nuvem.
 
 ---
 

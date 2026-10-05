@@ -14,8 +14,8 @@
 |---|---|
 | Pedro Henrique de Oliveira | Product Owner |
 | Victor Nascimento Silva | Scrum Master |
-| Felipe Jacinto Camilo | Desenvolvedor |
-| Pablo Alberto Centurion Leguizamon Junior | Desenvolvedor |
+| Ana Luiza Ripoli Theodorovitz | Desenvolvedora |
+| João Pedro Foster Ruiz | Desenvolvedor |
 
 ---
 
