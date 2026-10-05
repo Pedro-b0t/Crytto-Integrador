@@ -1,5 +1,20 @@
 # Crytto RPG Platform v2
 
+## Grupo
+
+Projeto Integrador, Uniamérica Descomplica. Professor: Gildomiro Bairros.
+
+| Integrante | Papel |
+|---|---|
+| Pedro Henrique de Oliveira | Product Owner |
+| Victor Nascimento Silva | Scrum Master |
+| Ana Luiza Ripoli Theodorovitz | Desenvolvedora |
+| João Pedro Foster Ruiz | Desenvolvedor |
+
+Documentação da Entrega 1: [docs/arquitetura.md](docs/arquitetura.md), ADRs em [docs/adr/](docs/adr/), custos em [docs/custos/](docs/custos/) e declaração de uso de IA em [IA.md](IA.md).
+
+## Visão geral
+
 Versão independente do projeto original, preparada para execução e deploy em VM com automação de infraestrutura.
 
 ## Objetivo da v2
