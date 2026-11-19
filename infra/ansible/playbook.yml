@@ -54,7 +54,8 @@
         dest: "{{ app_dir }}/.env"
         owner: vagrant
         group: vagrant
-        mode: "0644"
+        mode: "0600"
+      no_log: true
 
 - name: Subir banco em VM dedicada
   hosts: db
