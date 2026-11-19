@@ -66,13 +66,13 @@ na segunda entrega do projeto.
 O andamento de cada requisito será atualizado conforme
 as evidências e implementações dos integrantes do grupo.
 
-| Requisito | Controle ou evidência | Situação |
-|---|---|---|
+| Requisito | Controle ou evidência | Responsável | Situação |
+|---|---|---|---|
 | S1 | Desativar autenticação SSH por senha e login direto do root em todas as VMs | Victor | Pendente de verificação |
 | S2 | Restringir regras de saída da rede: HTTP/HTTPS, DNS e PostgreSQL apenas entre máquinas autorizadas | Victor | Pendente de verificação |
 | S3 | Configurar HTTPS no nginx e redirecionar HTTP para HTTPS | Pedro | Pendente de verificação |
-| S4 | Remover a senha fixa do banco do código e utilizar variável Terraform sensível ou Secret Manager | Pedro | Pendente de verificação |
-| S5 | Permissões restritas da service account de backup | Pendente de verificação |
-| S6 | Criptografia do bucket de backup | Pendente de verificação |
-| S7 | Análise com Checkov e Gitleaks | Executado; achados em análise |
-| S8 | Autenticação multifator na conta GCP | Pendente de evidência |
+| S4 | Remover a senha fixa do banco do código e utilizar um mecanismo seguro para fornecer credenciais | Pedro | Pendente de verificação |
+| S5 | Permissões restritas da service account de backup | A confirmar | Pendente de verificação |
+| S6 | Criptografia do bucket de backup | A confirmar | Pendente de verificação |
+| S7 | Análise com Checkov e Gitleaks | Ana | Executado; achados em análise |
+| S8 | Autenticação multifator na conta GCP | A confirmar | Pendente de evidência |
