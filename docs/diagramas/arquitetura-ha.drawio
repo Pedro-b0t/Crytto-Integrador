@@ -1,0 +1,141 @@
+<mxfile host="65bd71144e">
+    <diagram id="arq" name="Arquitetura">
+        <mxGraphModel dx="1430" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="gcp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" value="Google Cloud Platform - regiao us-central1 (Alta Disponibilidade)" vertex="1">
+                    <mxGeometry height="740" width="1010" x="140" y="-30" as="geometry"/>
+                </mxCell>
+                <mxCell id="vpc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" value="vpc-grupo-x - 10.20.0.0/16" vertex="1">
+                    <mxGeometry height="680" width="970" x="160" y="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-6" parent="1" style="whiteSpace=wrap;html=1;dashed=1;fillColor=#dae8fc;" value="" vertex="1">
+                    <mxGeometry height="320" width="380" x="220" y="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" value="priv-a - 10.20.10.0/24 (privada)" vertex="1">
+                    <mxGeometry height="130" width="360" x="230" y="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-7" parent="1" style="whiteSpace=wrap;html=1;dashed=1;fillColor=#dae8fc;" value="" vertex="1">
+                    <mxGeometry height="320" width="360" x="710" y="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="pub" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" value="pub-a - 10.20.1.0/24 (publica)" vertex="1">
+                    <mxGeometry height="120" width="360" x="230" y="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="priv" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" value="priv-b - 10.20.11.0/24 (privada)" vertex="1">
+                    <mxGeometry height="150" width="340" x="720" y="330" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-39" edge="1" parent="1" source="bastion" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;exitX=0.485;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.482;entryY=0.045;entryDx=0;entryDy=0;entryPerimeter=0;" target="app" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="bastion" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" value="vm-bastion&#xa;e2-micro | 10.20.1.10&#xa;IP publico estatico&#xa;sg-bastion: TCP 22 do IP do grupo /32" vertex="1">
+                    <mxGeometry height="70" width="320" x="250" y="240" as="geometry"/>
+                </mxCell>
+                <mxCell id="app" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" value="vm-app-a&lt;br&gt;e2-small | 10.20.10.20 | SEM IP publico&lt;br&gt;nginx + React + API Node.js&lt;br&gt;Acesso via Load Balancer" vertex="1">
+                    <mxGeometry height="70" width="320" x="250" y="390" as="geometry"/>
+                </mxCell>
+                <mxCell id="db" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" value="vm-app-b&lt;br&gt;e2-small | 10.20.11.20 | SEM IP publico&lt;br&gt;nginx + React + API Node.js&lt;br&gt;Acesso via Load Balancer" vertex="1">
+                    <mxGeometry height="70" width="310" x="735" y="390" as="geometry"/>
+                </mxCell>
+                <mxCell id="igw" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="&lt;b&gt;Gateway de internet&lt;/b&gt; (default-internet-gateway)&lt;br&gt;rota 0.0.0.0/0" vertex="1">
+                    <mxGeometry height="60" width="380" x="240" y="600" as="geometry"/>
+                </mxCell>
+                <mxCell id="nat" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="&lt;b&gt;Cloud Router + Cloud NAT (nat-grupo-x)&lt;/b&gt;&lt;br&gt;atende sub-redes privadas (priv-a e priv-b)" vertex="1">
+                    <mxGeometry height="60" width="380" x="680" y="600" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-5" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="TwSRIsWU2Eko_G0dcjb3-4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="user" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Usuario final" vertex="1">
+                    <mxGeometry height="50" width="30" x="630" y="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="admin" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" value="Administrador&#xa;(IP do grupo /32)" vertex="1">
+                    <mxGeometry height="60" width="30" x="60" y="245" as="geometry"/>
+                </mxCell>
+                <mxCell id="net" parent="1" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" value="Internet" vertex="1">
+                    <mxGeometry height="80" width="160" x="790" y="720" as="geometry"/>
+                </mxCell>
+                <mxCell id="f2a" edge="1" parent="1" source="admin" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;" target="bastion" value="2 - SSH 22">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="f3b" edge="1" parent="1" source="nat" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2d7600;fontStyle=1;" target="net" value="3">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;" value="&lt;b&gt;Fluxos: &lt;/b&gt;&lt;br&gt;&lt;b&gt;1 -&amp;nbsp; &lt;/b&gt;Usuário final acessa a aplicacao via HTTPS pelo Load Balancer &lt;br&gt;&lt;b&gt;2 -&amp;nbsp;&lt;/b&gt; Administrador acessa o bastion via SSH e a partir dele as demais VMs&lt;br&gt;&lt;b&gt;3 -&amp;nbsp;&lt;/b&gt; Instâncias privadas acessam a internet pelo Cloud NAT (atualizações, pacotes e imagens Docker)" vertex="1">
+                    <mxGeometry height="40" width="550" x="200" y="730" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-34" edge="1" parent="1" source="TwSRIsWU2Eko_G0dcjb3-4" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;exitX=0.485;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" target="app">
+                    <mxGeometry relative="1" x="-0.04" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="640" y="270"/>
+                            <mxPoint x="640" y="425"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-36" edge="1" parent="1" source="TwSRIsWU2Eko_G0dcjb3-4" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;exitX=0.544;exitY=1.039;exitDx=0;exitDy=0;exitPerimeter=0;" target="db">
+                    <mxGeometry relative="1" x="-0.1892" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="660" y="270"/>
+                            <mxPoint x="660" y="425"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Load Balancer (HTTPS)&lt;br&gt;IP público estático&lt;br&gt;Health Check | Balanceamento" vertex="1">
+                    <mxGeometry height="50" width="330" x="480" y="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-8" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;" value="Zona us-central1-a" vertex="1">
+                    <mxGeometry height="10" width="130" x="230" y="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-9" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;" value="Zona us-central1-b" vertex="1">
+                    <mxGeometry height="10" width="130" x="720" y="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="&lt;b&gt;Cloud SQL (PostgreSQL) - Alta Disponibilidade (HA)&lt;/b&gt;&lt;br&gt;Instância principal (us-central1-a) + Standby (us-central1-b)&lt;br&gt;Backups automáticos e failover regional" vertex="1">
+                    <mxGeometry height="60" width="560" x="380" y="530" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-15" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;" value="&lt;b&gt;TCP 5432&lt;/b&gt;" vertex="1">
+                    <mxGeometry height="10" width="60" x="800" y="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-16" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;" value="&lt;b&gt;TCP 5432&lt;/b&gt;" vertex="1">
+                    <mxGeometry height="10" width="60" x="450" y="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-31" edge="1" parent="1" source="app" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2d7600;fontStyle=1;entryX=0.052;entryY=0.023;entryDx=0;entryDy=0;entryPerimeter=0;" target="TwSRIsWU2Eko_G0dcjb3-12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-32" edge="1" parent="1" source="db" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2d7600;fontStyle=1;entryX=0.913;entryY=0.061;entryDx=0;entryDy=0;entryPerimeter=0;" target="TwSRIsWU2Eko_G0dcjb3-12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-38" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=default;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&lt;b style=&quot;&quot;&gt;&amp;nbsp; &amp;nbsp;Componentes de HA&lt;/b&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&amp;nbsp; &amp;nbsp;- Duas zonas (us-central1-a e us-central1-b)&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&amp;nbsp; &amp;nbsp;- Load Balancer com health check&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&amp;nbsp; &amp;nbsp;- Duas instâncias da aplicação (vm-app-a e vm-app-b)&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&amp;nbsp; &amp;nbsp;- Cloud SQL com alta disponibilidade (réplica/failover)&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&amp;nbsp; &amp;nbsp;- Sub-redes publicas e privadas em ambas as zonas&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(#000000, var(--ge-light-color, #ffffff));&quot;&gt;&amp;nbsp; &amp;nbsp;- Cloud NAT regional&lt;/span&gt;&lt;/font&gt;" vertex="1">
+                    <mxGeometry height="130" width="290" x="1010" y="730" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-44" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=default;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;" value="&lt;pre dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;  Firewall das aplicações:&lt;br&gt;  - HTTP 80: somente Load Balancer e Health Checks&lt;br&gt;  - SSH 22: somente vm-bastion&lt;br&gt;  - PostgreSQL 5432: acesso ao Cloud SQL por IP privado&lt;br&gt;  - Sem acesso público direto às VMs&lt;/font&gt;&lt;/code&gt;&lt;/pre&gt;" vertex="1">
+                    <mxGeometry height="110" width="340" x="1010" y="880" as="geometry"/>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-46" edge="1" parent="1" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;entryX=0.691;entryY=0.132;entryDx=0;entryDy=0;entryPerimeter=0;" value="">
+                    <mxGeometry relative="1" x="-1" y="70" as="geometry">
+                        <mxPoint x="-69" y="70" as="offset"/>
+                        <Array as="points"/>
+                        <mxPoint x="730" y="100" as="sourcePoint"/>
+                        <mxPoint x="750.27" y="99.7600000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-48" connectable="0" parent="TwSRIsWU2Eko_G0dcjb3-46" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=1;fontStyle=1;" value="1 - HTTPS 443" vertex="1">
+                    <mxGeometry relative="1" x="0.2827" y="-1" as="geometry">
+                        <mxPoint x="-3" y="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-49" edge="1" parent="1" source="bastion" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#0050ef;fontStyle=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" target="db" value="">
+                    <mxGeometry relative="1" x="0.4414" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="967.5" y="293.52"/>
+                        </Array>
+                        <mxPoint x="630" y="293.52047639287383" as="sourcePoint"/>
+                        <mxPoint x="950" y="390" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="TwSRIsWU2Eko_G0dcjb3-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;" value="pub-b - 10.20.2.0/24 (publica)" vertex="1">
+                    <mxGeometry height="60" width="340" x="720" y="220" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
