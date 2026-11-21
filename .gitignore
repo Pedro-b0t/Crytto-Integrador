@@ -18,3 +18,30 @@ LEIA-ME.md
 
 # Cobertura de testes
 backend/coverage/
+
+# Terraform: estado, planos e variáveis reais nunca vão para o Git (.terraform.lock.hcl é versionado)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+tfplan
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Chaves e certificados privados
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ecdsa
+id_ed25519
+chave-grupo
+*-sa-key.json

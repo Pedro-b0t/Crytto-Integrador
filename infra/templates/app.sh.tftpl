@@ -1,0 +1,55 @@
+# --- vm-app: frontend (nginx com HTTPS) e backend em containers ---
+harden_ssh
+install_docker
+apt-get install "$${APT_OPTS[@]}" git openssl
+
+APP_DIR=/opt/crytto
+TLS_DIR=/etc/crytto/tls
+
+if [ ! -d "$APP_DIR/.git" ]; then
+  log "Clonando ${repo_url}"
+  git clone "${repo_url}" "$APP_DIR"
+fi
+git -C "$APP_DIR" fetch --tags --force origin
+# Aceita branch (origin/<ref>) ou tag (<ref>).
+git -C "$APP_DIR" checkout -f --detach "origin/${repo_ref}" 2>/dev/null ||
+  git -C "$APP_DIR" checkout -f --detach "${repo_ref}"
+log "Código em $(git -C "$APP_DIR" rev-parse --short HEAD) (${repo_ref})"
+
+# S4: a senha vem do Secret Manager e fica só em arquivo root 0600, fora do diretório do código.
+install -d -m 0700 /etc/crytto
+DB_PASSWORD="$(get_secret "${project_id}" "${db_secret_id}")"
+umask 077
+cat >/etc/crytto/app.env <<EOF
+DATABASE_URL=postgres://${db_user}:$DB_PASSWORD@${db_host}:5432/${db_name}
+PGSSL=false
+FRONTEND_URL=https://${public_ip}
+EOF
+unset DB_PASSWORD
+umask 022
+
+# S3: certificado autoassinado para o IP público estático (gerado de novo se faltar ou vencer em 7 dias).
+install -d -m 0755 "$TLS_DIR"
+if ! openssl x509 -checkend 604800 -noout -in "$TLS_DIR/server.crt" >/dev/null 2>&1; then
+  log "Gerando certificado autoassinado para ${public_ip}"
+  openssl req -x509 -nodes -newkey rsa:2048 -days 90 \
+    -keyout "$TLS_DIR/server.key" -out "$TLS_DIR/server.crt" \
+    -subj "/O=Crytto RPG Platform/CN=${public_ip}" \
+    -addext "subjectAltName=IP:${public_ip}"
+  chmod 0600 "$TLS_DIR/server.key"
+fi
+
+cd "$APP_DIR"
+export APP_ENV_FILE=/etc/crytto/app.env TLS_DIR
+docker compose -f docker-compose.gcp.yml up -d --build --remove-orphans
+
+for attempt in $(seq 1 60); do
+  if curl -skf https://localhost/health >/dev/null; then
+    log "Aplicação pronta em https://${public_ip}"
+    exit 0
+  fi
+  log "Aguardando aplicação ($attempt/60)"
+  sleep 5
+done
+log "A aplicação não respondeu a tempo; veja: docker compose -f $APP_DIR/docker-compose.gcp.yml logs"
+exit 1
