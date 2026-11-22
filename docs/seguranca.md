@@ -1,19 +1,19 @@
-﻿# Seguran├ºa (Parte B)
+# Segurança (Parte B)
 
-Controles S1 a S8, tratamento dos achados das ferramentas de an├ílise e an├ílise de amea├ºas da arquitetura implantada ([arquitetura.md](arquitetura.md)).
+Controles S1 a S8, tratamento dos achados das ferramentas de análise e análise de ameaças da arquitetura implantada ([arquitetura.md](arquitetura.md)).
 
-## Controles obrigat├│rios
+## Controles obrigatórios
 
-| # | Controle | Status | Onde est├í | Respons├ível |
+| # | Controle | Status | Onde está | Responsável |
 |---|---|---|---|---|
-| S1 | Endurecimento do SSH | Implementado no startup script; validar na demonstra├º├úo D3 | [infra/templates/common.sh](../infra/templates/common.sh) (`harden_ssh`) | Victor (valida├º├úo), Pedro (script) |
-| S2 | Sa├¡da restrita | Pendente | `infra/security.tf` | Victor |
+| S1 | Endurecimento do SSH | Implementado no startup script; validar na demonstração D3 | [infra/templates/common.sh](../infra/templates/common.sh) (`harden_ssh`) | Victor (validação), Pedro (script) |
+| S2 | Saída restrita | Pendente | `infra/security.tf` | Victor |
 | S3 | HTTPS | Implementado | [nginx.https.conf](../nginx.https.conf), [infra/templates/app.sh.tftpl](../infra/templates/app.sh.tftpl) | Pedro |
-| S4 | Gest├úo de segredos | Implementado | [infra/secrets.tf](../infra/secrets.tf), [infra/variables.tf](../infra/variables.tf) (`db_password`) | Pedro |
-| S5 | Menor privil├®gio para as inst├óncias | Implementado para a senha do banco; falta a permiss├úo do bucket de backup | [infra/iam.tf](../infra/iam.tf) | Pedro, Jo├úo |
-| S6 | Criptografia em repouso | Implementado nos discos; falta o bucket de backup | [infra/kms.tf](../infra/kms.tf), [infra/compute.tf](../infra/compute.tf) | Pedro, Jo├úo |
+| S4 | Gestão de segredos | Implementado | [infra/secrets.tf](../infra/secrets.tf), [infra/variables.tf](../infra/variables.tf) (`db_password`) | Pedro |
+| S5 | Menor privilégio para as instâncias | Implementado para a senha do banco; falta a permissão do bucket de backup | [infra/iam.tf](../infra/iam.tf) | Pedro, João |
+| S6 | Criptografia em repouso | Implementado nos discos; falta o bucket de backup | [infra/kms.tf](../infra/kms.tf), [infra/compute.tf](../infra/compute.tf) | Pedro, João |
 | S7 | Análise automatizada | Executada parcialmente: Checkov em Ansible e Terraform; Gitleaks executado anteriormente. Revalidação final pendente após integração da rede | `docs/evidencias/` | Ana |
-| S8 | Prote├º├úo da conta (MFA) | Pendente: captura de tela | `docs/evidencias/` | Pedro |
+| S8 | Proteção da conta (MFA) | Pendente: captura de tela | `docs/evidencias/` | Pedro |
 
 ### S1: endurecimento do SSH
 
@@ -26,71 +26,71 @@ PermitRootLogin no
 PubkeyAuthentication yes
 ```
 
-O OpenSSH do Ubuntu inclui `sshd_config.d/*.conf` no in├¡cio do `sshd_config` e usa o primeiro valor encontrado; o prefixo `00-` garante preced├¬ncia sobre os arquivos da imagem. A configura├º├úo ├® validada com `sshd -t` antes do `reload`. Al├®m disso, as VMs aceitam apenas a chave do grupo (`block-project-ssh-keys = true`) e n├úo usam OS Login.
+O OpenSSH do Ubuntu inclui `sshd_config.d/*.conf` no início do `sshd_config` e usa o primeiro valor encontrado; o prefixo `00-` garante precedência sobre os arquivos da imagem. A configuração é validada com `sshd -t` antes do `reload`. Além disso, as VMs aceitam apenas a chave do grupo (`block-project-ssh-keys = true`) e não usam OS Login.
 
-Verifica├º├úo (resultado esperado: `Permission denied (publickey)`):
+Verificação (resultado esperado: `Permission denied (publickey)`):
 
 ```bash
 ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password crytto@<IP_PUBLICO_BASTION>
 ```
 
-### S2: sa├¡da restrita
+### S2: saída restrita
 
 _A preencher por Victor._
 
 ### S3: HTTPS
 
-- O nginx da `vm-app` atende em 443 com TLS 1.2 e 1.3. A porta 80 s├│ responde `301` para `https://` (e `/healthz`, reservado a health checks).
-- Certificado autoassinado gerado na pr├│pria VM pelo startup script, com `subjectAltName` igual ao IP est├ítico da aplica├º├úo e validade de 90 dias. A chave privada fica em `/etc/crytto/tls/server.key` (root, 0600) e nunca sai da VM.
-- Cabe├ºalhos `X-Content-Type-Options`, `X-Frame-Options` e `Referrer-Policy`; vers├úo do nginx oculta (`server_tokens off`).
-- N├úo foi usado certificado p├║blico porque o grupo n├úo tem dom├¡nio pr├│prio. Com um dom├¡nio, bastaria trocar o certificado por um do Let's Encrypt (certbot) sem alterar a infraestrutura.
+- O nginx da `vm-app` atende em 443 com TLS 1.2 e 1.3. A porta 80 só responde `301` para `https://` (e `/healthz`, reservado a health checks).
+- Certificado autoassinado gerado na própria VM pelo startup script, com `subjectAltName` igual ao IP estático da aplicação e validade de 90 dias. A chave privada fica em `/etc/crytto/tls/server.key` (root, 0600) e nunca sai da VM.
+- Cabeçalhos `X-Content-Type-Options`, `X-Frame-Options` e `Referrer-Policy`; versão do nginx oculta (`server_tokens off`).
+- Não foi usado certificado público porque o grupo não tem domínio próprio. Com um domínio, bastaria trocar o certificado por um do Let's Encrypt (certbot) sem alterar a infraestrutura.
 
-Verifica├º├úo:
+Verificação:
 
 ```bash
-curl -vk https://<IP_APP>/health          # negocia├º├úo TLS e {"status":"ok","db":"up"}
+curl -vk https://<IP_APP>/health          # negociação TLS e {"status":"ok","db":"up"}
 curl -sI http://<IP_APP>/                  # HTTP/1.1 301 Moved Permanently, Location: https://...
 ```
 
-### S4: gest├úo de segredos
+### S4: gestão de segredos
 
-- A senha do PostgreSQL entra no Terraform apenas por `TF_VAR_db_password`. A vari├ível ├® `sensitive = true` e `ephemeral = true`.
-- O valor ├® gravado no Secret Manager (`crytto-db-password`) pelo argumento write-only `secret_data_wo`, portanto **n├úo aparece no plan, nos outputs nem no `terraform.tfstate`**. Rota├º├úo: incrementar `db_password_version`.
-- As VMs leem o segredo em tempo de boot pela API do Secret Manager e o gravam apenas em `/etc/crytto/db.env` e `/etc/crytto/app.env` (root, 0600), fora do diret├│rio do c├│digo.
-- Os arquivos versionados n├úo cont├¬m senha: `.gitignore` bloqueia `*.tfvars`, `*.tfstate`, `.terraform/`, chaves e certificados.
+- A senha do PostgreSQL entra no Terraform apenas por `TF_VAR_db_password`. A variável é `sensitive = true` e `ephemeral = true`.
+- O valor é gravado no Secret Manager (`crytto-db-password`) pelo argumento write-only `secret_data_wo`, portanto **não aparece no plan, nos outputs nem no `terraform.tfstate`**. Rotação: incrementar `db_password_version`.
+- As VMs leem o segredo em tempo de boot pela API do Secret Manager e o gravam apenas em `/etc/crytto/db.env` e `/etc/crytto/app.env` (root, 0600), fora do diretório do código.
+- Os arquivos versionados não contêm senha: `.gitignore` bloqueia `*.tfvars`, `*.tfstate`, `.terraform/`, chaves e certificados.
 
-Verifica├º├úo (D5):
+Verificação (D5):
 
 ```bash
-git grep -n -i "password" -- infra/ docker-compose.gcp.yml   # s├│ nomes de vari├íveis e recursos, nenhum valor
+git grep -n -i "password" -- infra/ docker-compose.gcp.yml   # só nomes de variáveis e recursos, nenhum valor
 terraform state show google_secret_manager_secret_version.db_password   # sem o valor da senha
 gcloud secrets versions list crytto-db-password
 ```
 
-### S5: menor privil├®gio para as inst├óncias
+### S5: menor privilégio para as instâncias
 
-| VM | Service account | Permiss├Áes |
+| VM | Service account | Permissões |
 |---|---|---|
-| `vm-bastion` | nenhuma | Nenhuma: s├│ repassa SSH |
+| `vm-bastion` | nenhuma | Nenhuma: só repassa SSH |
 | `vm-app` | `sa-vm-app` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password` |
-| `vm-db` | `sa-vm-db` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password`; grava├º├úo no bucket de backup (a definir por Jo├úo) |
+| `vm-db` | `sa-vm-db` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password`; gravação no bucket de backup (a definir por João) |
 
-As permiss├Áes s├úo concedidas no pr├│prio recurso (IAM do segredo), n├úo no projeto. As VMs obt├¬m tokens de curta dura├º├úo do metadata server; nenhuma chave de service account ├® criada ou gravada nas inst├óncias. Nenhuma VM usa a service account padr├úo do Compute Engine (que tem papel de editor no projeto).
+As permissões são concedidas no próprio recurso (IAM do segredo), não no projeto. As VMs obtêm tokens de curta duração do metadata server; nenhuma chave de service account é criada ou gravada nas instâncias. Nenhuma VM usa a service account padrão do Compute Engine (que tem papel de editor no projeto).
 
 ### S6: criptografia em repouso
 
-- Key ring `kr-crytto-<sufixo>` e chave `cmek-crytto` no Cloud KMS (`us-central1`), com rota├º├úo autom├ítica a cada 90 dias.
-- Os tr├¬s discos de boot usam a chave por `kms_key_self_link` ([infra/compute.tf](../infra/compute.tf)). Os dados do PostgreSQL ficam no disco de boot da `vm-db`; snapshots desses discos herdam a mesma chave.
-- Apenas o agente de servi├ºo do Compute Engine recebe `roles/cloudkms.cryptoKeyEncrypterDecrypter` na chave.
-- O bucket de backup (Jo├úo) deve usar a mesma chave (output `kms_key_id`), concedendo o papel ao agente de servi├ºo do Cloud Storage.
+- Key ring `kr-crytto-<sufixo>` e chave `cmek-crytto` no Cloud KMS (`us-central1`), com rotação automática a cada 90 dias.
+- Os três discos de boot usam a chave por `kms_key_self_link` ([infra/compute.tf](../infra/compute.tf)). Os dados do PostgreSQL ficam no disco de boot da `vm-db`; snapshots desses discos herdam a mesma chave.
+- Apenas o agente de serviço do Compute Engine recebe `roles/cloudkms.cryptoKeyEncrypterDecrypter` na chave.
+- O bucket de backup (João) deve usar a mesma chave (output `kms_key_id`), concedendo o papel ao agente de serviço do Cloud Storage.
 
-Verifica├º├úo:
+Verificação:
 
 ```bash
 gcloud compute disks describe vm-db --zone us-central1-a --format="value(diskEncryptionKey.kmsKeyName)"
 ```
 
-### S7: an├ílise automatizada
+### S7: análise automatizada
 
 Foram utilizadas ferramentas de análise automatizada para identificar possíveis vulnerabilidades e problemas de configuração no projeto.
 
@@ -104,9 +104,9 @@ Foram utilizadas ferramentas de análise automatizada para identificar possívei
 
 **Limitação:** a validação completa do Terraform ainda depende da integração dos recursos de rede e firewall desenvolvidos em outra branch. Os resultados apresentados correspondem ao código disponível no momento das análises.
 
-### S8: prote├º├úo da conta
+### S8: proteção da conta
 
-_Captura de tela do MFA habilitado, sem dados sens├¡veis, em `docs/evidencias/` (Pedro)._
+_Captura de tela do MFA habilitado, sem dados sensíveis, em `docs/evidencias/` (Pedro)._
 
 ## Tratamento dos achados
 
@@ -124,9 +124,9 @@ As decisões são registradas como Corrigido, Aceito ou Pendente.
 | CKV_GCP_82 — Proteção contra exclusão da chave KMS | Não informada pelo Checkov CLI | `google_kms_crypto_key.cmek` | Aceito provisoriamente — requer aprovação do grupo | O arquivo `infra/kms.tf` configura `destroy_scheduled_duration = "86400s"`, equivalente a 24 horas. Esse prazo reduz a janela de recuperação em caso de exclusão acidental de uma versão da chave. A configuração pode ser justificada pelo caráter temporário do ambiente acadêmico, mas permanece o risco de perda de acesso aos dados criptografados. Recomenda-se avaliar um prazo maior antes de utilizar a infraestrutura em produção. |
 | CKV2_ANSIBLE_1 — Verificações de saúde por HTTP (2 ocorrências) | Não informada pelo Checkov CLI | Verificações de saúde no Ansible | Aceito | As verificações utilizam HTTP para consultar serviços locais por `localhost`, sem transmitir os dados pela internet. O uso de HTTP nesse contexto tem risco reduzido, pois a comunicação ocorre dentro da própria máquina. Permanece o risco caso algum serviço local seja comprometido ou a configuração passe a utilizar endereços externos. |
 
-## An├ílise de amea├ºas
+## Análise de ameaças
 
-| Amea├ºa | Ativo afetado | Controle aplicado | Risco residual |
+| Ameaça | Ativo afetado | Controle aplicado | Risco residual |
 |---|---|---|---|
 | Ataque de força bruta ou roubo de chave SSH para acessar o bastion e alcançar as VMs internas | Bastion, aplicação e banco de dados | Acesso SSH restrito ao CIDR autorizado do grupo, autenticação por chave, login root desabilitado e bloqueio de chaves SSH do projeto declarado no Terraform | Se uma chave privada autorizada for roubada, um invasor poderá tentar acessar o bastion e alcançar os recursos internos. |
 | Alteração indevida do saldo de Crytts de outro usuário por meio da API | API da aplicação, contas dos usuários e saldos de Crytts | Comunicação HTTPS e banco de dados sem acesso público direto, reduzindo a exposição dos dados durante o transporte e o armazenamento | A rota `PUT /api/users/:id/balance` pode permitir alterações de saldo sem verificar adequadamente a autorização do usuário. HTTPS não impede esse tipo de ataque. É necessário implementar autenticação e autorização no backend para garantir que cada usuário só possa realizar operações permitidas. |
