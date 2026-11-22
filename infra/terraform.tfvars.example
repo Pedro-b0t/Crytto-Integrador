@@ -1,0 +1,28 @@
+# Copie para terraform.tfvars (ignorado pelo Git) e ajuste os valores.
+# A senha do banco NÃO vai aqui: use a variável de ambiente TF_VAR_db_password.
+
+project_id = "seu-projeto-gcp"
+region     = "us-central1"
+zone       = "us-central1-a"
+
+project_label = "crytto"
+group_label   = "grupo-x"
+environment   = "entrega2"
+
+network_name        = "vpc-grupo-x"
+vpc_cidr            = "10.20.0.0/16"
+public_subnet_cidr  = "10.20.1.0/24"
+private_subnet_cidr = "10.20.10.0/24"
+
+# IP público de quem administra, em /32 (curl -s https://ifconfig.me). Nunca 0.0.0.0/0.
+ssh_allowed_cidr = "203.0.113.10/32"
+
+bastion_machine_type = "e2-micro"
+app_machine_type     = "e2-small"
+db_machine_type      = "e2-small"
+
+ssh_user            = "crytto"
+ssh_public_key_path = "~/.ssh/chave-grupo.pub"
+
+# Na apresentação, implantar a tag congelada.
+app_repo_ref = "main"

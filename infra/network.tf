@@ -8,7 +8,7 @@ resource "google_compute_network" "vpc" {
 
 resource "google_compute_subnetwork" "pub_a" {
   name                     = "pub-a"
-  ip_cidr_range            = var.pub_subnet_cidr
+  ip_cidr_range            = var.public_subnet_cidr
   region                   = var.region
   network                  = google_compute_network.vpc.id
   description              = "Sub-rede pública para bastion e VM de aplicação."
@@ -17,7 +17,7 @@ resource "google_compute_subnetwork" "pub_a" {
 
 resource "google_compute_subnetwork" "priv_a" {
   name                     = "priv-a"
-  ip_cidr_range            = var.priv_subnet_cidr
+  ip_cidr_range            = var.private_subnet_cidr
   region                   = var.region
   network                  = google_compute_network.vpc.id
   description              = "Sub-rede privada para a VM de banco e serviços internos."
@@ -33,12 +33,12 @@ resource "google_compute_route" "internet_egress" {
   description      = "Rota padrão para saída para a internet."
 }
 
-resource "google_compute_address" "nat_ip" {
+resource "google_compute_address" "nat" {
   name         = "nat-ip-grupo-x"
   region       = var.region
   address_type = "EXTERNAL"
   description  = "IP externo reservado para o Cloud NAT."
-  labels       = local.resource_labels
+  labels       = local.labels
 }
 
 resource "google_compute_router" "nat_router" {
@@ -58,7 +58,7 @@ resource "google_compute_router_nat" "nat" {
   region                             = var.region
   nat_ip_allocate_option             = "MANUAL_ONLY"
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
-  nat_ips                            = [google_compute_address.nat_ip.self_link]
+  nat_ips                            = [google_compute_address.nat.self_link]
 
   subnetwork {
     name                    = google_compute_subnetwork.priv_a.self_link
@@ -87,6 +87,6 @@ output "private_subnet_name" {
 }
 
 output "nat_ip" {
-  value       = google_compute_address.nat_ip.address
+  value       = google_compute_address.nat.address
   description = "IP externo reservado pelo Cloud NAT."
 }

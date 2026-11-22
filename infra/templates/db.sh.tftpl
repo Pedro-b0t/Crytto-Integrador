@@ -1,0 +1,38 @@
+# --- vm-db: PostgreSQL 16 em container, dados no disco de boot (CMEK) ---
+harden_ssh
+install_docker
+
+install -d -m 0700 /etc/crytto
+install -d -m 0700 /var/lib/crytto/pgdata
+
+DB_PASSWORD="$(get_secret "${project_id}" "${db_secret_id}")"
+umask 077
+cat >/etc/crytto/db.env <<EOF
+POSTGRES_DB=${db_name}
+POSTGRES_USER=${db_user}
+POSTGRES_PASSWORD=$DB_PASSWORD
+EOF
+unset DB_PASSWORD
+umask 022
+
+if ! docker ps -a --format '{{.Names}}' | grep -qx crytto-db; then
+  log "Criando container crytto-db"
+  docker run -d --name crytto-db --restart unless-stopped \
+    --env-file /etc/crytto/db.env \
+    -v /var/lib/crytto/pgdata:/var/lib/postgresql/data \
+    -p 5432:5432 \
+    postgres:16-alpine
+else
+  docker start crytto-db >/dev/null
+fi
+
+for attempt in $(seq 1 30); do
+  if docker exec crytto-db pg_isready -U "${db_user}" -d "${db_name}" >/dev/null 2>&1; then
+    log "PostgreSQL pronto"
+    exit 0
+  fi
+  log "Aguardando PostgreSQL ($attempt/30)"
+  sleep 5
+done
+log "PostgreSQL não respondeu a tempo"
+exit 1

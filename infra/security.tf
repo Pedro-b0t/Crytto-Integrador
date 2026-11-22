@@ -6,7 +6,7 @@ resource "google_compute_firewall" "allow_ssh_from_admin" {
   direction = "INGRESS"
   priority  = 1000
 
-  source_ranges = [var.admin_source_cidr]
+  source_ranges = [var.ssh_allowed_cidr]
   target_tags   = ["bastion"]
 
   allow {
@@ -152,7 +152,7 @@ resource "google_compute_firewall" "egress_postgres_app_to_db" {
   priority  = 1000
 
   target_tags = ["app"]
-  destination_ranges = [var.priv_subnet_cidr]
+  destination_ranges = [var.private_subnet_cidr]
 
   allow {
     protocol = "tcp"
