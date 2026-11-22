@@ -1,0 +1,214 @@
+# Trivy Version: 0.76.2 - trivy config infra/ - 2026-11-22 17:44
+
+
+Report Summary
+
+┌────────────┬───────────┬───────────────────┐
+│   Target   │   Type    │ Misconfigurations │
+├────────────┼───────────┼───────────────────┤
+│ .          │ terraform │         0         │
+├────────────┼───────────┼───────────────────┤
+│ compute.tf │ terraform │         5         │
+├────────────┼───────────┼───────────────────┤
+│ network.tf │ terraform │         4         │
+└────────────┴───────────┴───────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+compute.tf (terraform)
+======================
+Tests: 5 (SUCCESSES: 0, FAILURES: 5)
+Failures: 5 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 2, CRITICAL: 0)
+
+GCP-0031 (HIGH): Instance has a public IP allocated.
+════════════════════════════════════════
+Instances should not be publicly exposed to the internet
+
+
+See https://avd.aquasec.com/misconfig/gcp-0031
+────────────────────────────────────────
+ compute.tf:137-140
+   via compute.tf:133-141 (network_interface)
+    via compute.tf:113-164 (google_compute_instance.app)
+────────────────────────────────────────
+ 113   resource "google_compute_instance" "app" {
+ ...   
+ 137 ┌     access_config {
+ 138 │       nat_ip       = google_compute_address.app.address
+ 139 │       network_tier = "PREMIUM"
+ 140 └     }
+ ...   
+ 164   }
+────────────────────────────────────────
+
+
+GCP-0031 (HIGH): Instance has a public IP allocated.
+════════════════════════════════════════
+Instances should not be publicly exposed to the internet
+
+
+See https://avd.aquasec.com/misconfig/gcp-0031
+────────────────────────────────────────
+ compute.tf:46-49
+   via compute.tf:42-50 (network_interface)
+    via compute.tf:22-63 (google_compute_instance.bastion)
+────────────────────────────────────────
+  22   resource "google_compute_instance" "bastion" {
+  ..   
+  46 ┌     access_config {
+  47 │       nat_ip       = google_compute_address.bastion.address
+  48 │       network_tier = "PREMIUM"
+  49 └     }
+  ..   
+  63   }
+────────────────────────────────────────
+
+
+GCP-0036 (MEDIUM): Instance has OS Login disabled.
+════════════════════════════════════════
+OS Login automatically revokes the relevant SSH keys when an IAM user has their access revoked.
+
+
+See https://avd.aquasec.com/misconfig/gcp-0036
+────────────────────────────────────────
+ compute.tf:154-156
+   via compute.tf:113-164 (google_compute_instance.app)
+────────────────────────────────────────
+ 113   resource "google_compute_instance" "app" {
+ ...   
+ 154 ┌   metadata = merge(local.common_metadata, {
+ 155 │     startup-script = local.app_startup_script
+ 156 └   })
+ ...   
+ 164   }
+────────────────────────────────────────
+
+
+GCP-0036 (MEDIUM): Instance has OS Login disabled.
+════════════════════════════════════════
+OS Login automatically revokes the relevant SSH keys when an IAM user has their access revoked.
+
+
+See https://avd.aquasec.com/misconfig/gcp-0036
+────────────────────────────────────────
+ compute.tf:58-60
+   via compute.tf:22-63 (google_compute_instance.bastion)
+────────────────────────────────────────
+  22   resource "google_compute_instance" "bastion" {
+  ..   
+  58 ┌   metadata = merge(local.common_metadata, {
+  59 │     startup-script = local.bastion_startup_script
+  60 └   })
+  ..   
+  63   }
+────────────────────────────────────────
+
+
+GCP-0036 (MEDIUM): Instance has OS Login disabled.
+════════════════════════════════════════
+OS Login automatically revokes the relevant SSH keys when an IAM user has their access revoked.
+
+
+See https://avd.aquasec.com/misconfig/gcp-0036
+────────────────────────────────────────
+ compute.tf:102-104
+   via compute.tf:65-111 (google_compute_instance.db)
+────────────────────────────────────────
+  65   resource "google_compute_instance" "db" {
+  ..   
+ 102 ┌   metadata = merge(local.common_metadata, {
+ 103 │     startup-script = local.db_startup_script
+ 104 └   })
+ ...   
+ 111   }
+────────────────────────────────────────
+
+
+
+network.tf (terraform)
+======================
+Tests: 4 (SUCCESSES: 0, FAILURES: 4)
+Failures: 4 (UNKNOWN: 0, LOW: 2, MEDIUM: 2, HIGH: 0, CRITICAL: 0)
+
+GCP-0029 (LOW): Subnetwork does not have VPC flow logs enabled.
+════════════════════════════════════════
+VPC flow logs record information about all traffic, which is a vital tool in reviewing anomalous traffic.
+
+
+See https://avd.aquasec.com/misconfig/gcp-0029
+────────────────────────────────────────
+ network.tf:18-25
+────────────────────────────────────────
+  18 ┌ resource "google_compute_subnetwork" "priv_a" {
+  19 │   name                     = "priv-a"
+  20 │   ip_cidr_range            = var.private_subnet_cidr
+  21 │   region                   = var.region
+  22 │   network                  = google_compute_network.vpc.id
+  23 │   description              = "Sub-rede privada para a VM de banco e serviços internos."
+  24 │   private_ip_google_access = true
+  25 └ }
+────────────────────────────────────────
+
+
+GCP-0029 (LOW): Subnetwork does not have VPC flow logs enabled.
+════════════════════════════════════════
+VPC flow logs record information about all traffic, which is a vital tool in reviewing anomalous traffic.
+
+
+See https://avd.aquasec.com/misconfig/gcp-0029
+────────────────────────────────────────
+ network.tf:9-16
+────────────────────────────────────────
+   9 ┌ resource "google_compute_subnetwork" "pub_a" {
+  10 │   name                     = "pub-a"
+  11 │   ip_cidr_range            = var.public_subnet_cidr
+  12 │   region                   = var.region
+  13 │   network                  = google_compute_network.vpc.id
+  14 │   description              = "Sub-rede pública para bastion e VM de aplicação."
+  15 │   private_ip_google_access = true
+  16 └ }
+────────────────────────────────────────
+
+
+GCP-0076 (MEDIUM): Subnetwork does not have flow logs enabled.
+════════════════════════════════════════
+Flow logs for subnets should be enabled to capture network traffic details for security analysis.
+
+
+See https://avd.aquasec.com/misconfig/gcp-0076
+────────────────────────────────────────
+ network.tf:18-25
+────────────────────────────────────────
+  18 ┌ resource "google_compute_subnetwork" "priv_a" {
+  19 │   name                     = "priv-a"
+  20 │   ip_cidr_range            = var.private_subnet_cidr
+  21 │   region                   = var.region
+  22 │   network                  = google_compute_network.vpc.id
+  23 │   description              = "Sub-rede privada para a VM de banco e serviços internos."
+  24 │   private_ip_google_access = true
+  25 └ }
+────────────────────────────────────────
+
+
+GCP-0076 (MEDIUM): Subnetwork does not have flow logs enabled.
+════════════════════════════════════════
+Flow logs for subnets should be enabled to capture network traffic details for security analysis.
+
+
+See https://avd.aquasec.com/misconfig/gcp-0076
+────────────────────────────────────────
+ network.tf:9-16
+────────────────────────────────────────
+   9 ┌ resource "google_compute_subnetwork" "pub_a" {
+  10 │   name                     = "pub-a"
+  11 │   ip_cidr_range            = var.public_subnet_cidr
+  12 │   region                   = var.region
+  13 │   network                  = google_compute_network.vpc.id
+  14 │   description              = "Sub-rede pública para bastion e VM de aplicação."
+  15 │   private_ip_google_access = true
+  16 └ }
+────────────────────────────────────────
+
+

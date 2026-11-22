@@ -12,7 +12,7 @@ Controles S1 a S8, tratamento dos achados das ferramentas de análise e análise
 | S4 | Gestão de segredos | Implementado | [infra/secrets.tf](../infra/secrets.tf), [infra/variables.tf](../infra/variables.tf) (`db_password`) | Pedro |
 | S5 | Menor privilégio para as instâncias | Implementado para a senha do banco; falta a permissão do bucket de backup | [infra/iam.tf](../infra/iam.tf) | Pedro, João |
 | S6 | Criptografia em repouso | Implementado nos discos; falta o bucket de backup | [infra/kms.tf](../infra/kms.tf), [infra/compute.tf](../infra/compute.tf) | Pedro, João |
-| S7 | Análise automatizada | Pendente | `docs/evidencias/` | Ana |
+| S7 | Análise automatizada | Executada: Checkov (Ansible e Terraform), Trivy (Terraform com rede e firewall) e Gitleaks (histórico). Repetir o Gitleaks antes da tag `entrega-2` | [docs/evidencias/](evidencias/) | Ana |
 | S8 | Proteção da conta (MFA) | Pendente: captura de tela | `docs/evidencias/` | Pedro |
 
 ### S1: endurecimento do SSH
@@ -101,22 +101,44 @@ gcloud compute disks describe vm-db --zone us-central1-a --format="value(diskEnc
 
 ### S7: análise automatizada
 
-_A preencher por Ana (relatórios de Trivy/Checkov e Gitleaks em `docs/evidencias/`)._
+Ferramentas usadas e relatórios em [docs/evidencias/](evidencias/):
 
+| Ferramenta | Escopo | Resultado | Relatório |
+|---|---|---|---|
+| Checkov 3.4.5 | Ansible (`infra/ansible/`) | 4 aprovadas, 3 falhas: senha fixa em `group_vars/all.yml` e dois health checks por HTTP local | `checkov-antes.txt` |
+| Checkov 3.4.5 | Terraform (`infra/*.tf`) | 24 aprovadas, 6 falhas: IP público (2), bloqueio de chaves SSH do projeto (3) e proteção contra exclusão da chave KMS (1) | `checkov-terraform.txt` |
+| Trivy 0.76.2 | Terraform, já com a rede e o firewall (`network.tf`, `security.tf`) | 2 altas (IP público), 5 médias (OS Login desativado, flow logs) e 2 baixas (VPC flow logs). Nenhuma crítica | `trivy-terraform.txt` |
+| Gitleaks | Histórico completo do Git | Nenhum segredo encontrado | `gitleaks-relatorio.json`, `gitleaks-final.json` |
+
+O Checkov sem conta na plataforma Prisma Cloud não informa severidade; por isso a severidade da tabela de achados vem do Trivy quando a mesma regra foi apontada pelas duas ferramentas. O Gitleaks deve ser executado novamente sobre o histórico final, imediatamente antes da tag `entrega-2`.
+
+**Demonstração D5:** achado corrigido `CKV_SECRET_4` (senha fixa) e achado aceito `GCP-0031`/`CKV_GCP_40` (IP público do bastion).
 ### S8: proteção da conta
 
 _Captura de tela do MFA habilitado, sem dados sensíveis, em `docs/evidencias/` (Pedro)._
 
 ## Tratamento dos achados
 
-_A preencher por Ana. Todo achado de severidade alta ou crítica precisa de decisão._
+Os achados identificados pelas ferramentas foram analisados considerando
+a arquitetura do projeto, os controles existentes e os riscos residuais.
+Todo achado de severidade alta ou crítica tem decisão registrada (Corrigido ou Aceito).
 
 | Achado | Severidade | Recurso | Decisão | Justificativa |
 |---|---|---|---|---|
-
+| CKV_SECRET_4: senha do banco escrita no código | Não informada pelo Checkov (credencial em texto claro) | `infra/ansible/group_vars/all.yml` | **Corrigido** | A senha fixa foi substituída pelas variáveis de ambiente `CRYTTO_DB_PASSWORD` e `CRYTTO_DATABASE_URL`, e uma nova execução do Checkov não apresentou mais o achado. Na nuvem a senha nunca esteve em arquivo: vem de `TF_VAR_db_password` e do Secret Manager (S4). O valor removido (`crytto`) era apenas a senha padrão do ambiente local com Vagrant, não usada na GCP |
+| GCP-0031 / CKV_GCP_40: instância com IP público | **Alta** (Trivy) | `google_compute_instance.bastion` | **Aceito** | O bastion precisa de IP público para o acesso administrativo (R6, ADR-001). O SSH só aceita o CIDR autorizado (R7), apenas chave e sem root (S1). Risco residual: comprometimento da chave privada de um integrante |
+| GCP-0031 / CKV_GCP_40: instância com IP público | **Alta** (Trivy) | `google_compute_instance.app` | **Aceito** | A arquitetura implantada não tem load balancer, então a aplicação é acessada pelo IP da `vm-app`. Só 80 e 443 estão abertos, e o 80 apenas redireciona para HTTPS (S3); SSH só a partir do bastion. Na proposta de HA as VMs da aplicação ficam sem IP público, atrás do load balancer |
+| GCP-0036: OS Login desativado (3 ocorrências) | Média (Trivy) | `google_compute_instance.bastion`, `.app` e `.db` | **Aceito** | Decisão do ADR-001: acesso por chave SSH do grupo através do bastion, sem OS Login. Chaves de projeto bloqueadas e console serial desativado |
+| CKV_GCP_32: bloqueio de chaves SSH do projeto (3 ocorrências) | Não informada pelo Checkov | `google_compute_instance.bastion`, `.app` e `.db` | **Aceito (falso positivo)** | `block-project-ssh-keys = "true"` está em `local.common_metadata` ([infra/locals.tf](../infra/locals.tf)) e é aplicado às três VMs por `merge()` em [infra/compute.tf](../infra/compute.tf). O Checkov não avalia essa composição. Conferível após o apply com `gcloud compute instances describe vm-app --format="value(metadata.items)"` |
+| CKV_GCP_82: chave KMS sem proteção contra exclusão | Não informada pelo Checkov | `google_kms_crypto_key.cmek` | **Aceito** | A regra pede `lifecycle { prevent_destroy = true }`, o que impediria o `terraform destroy` obrigatório após a apresentação (seção 11 do enunciado). Os discos cifrados pela chave são destruídos junto com o ambiente, e os backups não dependem dela para restauração. Em produção, a proteção seria habilitada e o `destroy_scheduled_duration` aumentado |
+| GCP-0076 / GCP-0029: sub-redes sem flow logs (2 ocorrências cada) | Média e baixa (Trivy) | `google_compute_subnetwork.pub_a` e `.priv_a` | **Aceito** | Os flow logs geram custo por volume de log e não são exigidos no escopo. Risco residual: sem registro de fluxos para investigar um incidente de rede |
+| CKV2_ANSIBLE_1: health check por HTTP (2 ocorrências) | Não informada pelo Checkov | `infra/ansible/playbook.yml` (Validar backend e Validar frontend) | **Aceito** | A verificação acessa `localhost` dentro da própria VM local, sem passar pela rede; o playbook é usado apenas no ambiente local com Vagrant |
 ## Análise de ameaças
-
-_A preencher por Ana. No mínimo cinco ameaças concretas à arquitetura do grupo._
 
 | Ameaça | Ativo afetado | Controle aplicado | Risco residual |
 |---|---|---|---|
+| Ataque de força bruta ou roubo de chave SSH para acessar o bastion e alcançar as VMs internas | Bastion, aplicação e banco de dados | Acesso SSH restrito ao CIDR autorizado do grupo, autenticação por chave, login root desabilitado e bloqueio de chaves SSH do projeto declarado no Terraform | Se uma chave privada autorizada for roubada, um invasor poderá tentar acessar o bastion e alcançar os recursos internos. |
+| Alteração indevida do saldo de Crytts de outro usuário por meio da API | API da aplicação, contas dos usuários e saldos de Crytts | Comunicação HTTPS e banco de dados sem acesso público direto, reduzindo a exposição dos dados durante o transporte e o armazenamento | A rota `PUT /api/users/:id/balance` pode permitir alterações de saldo sem verificar adequadamente a autorização do usuário. HTTPS não impede esse tipo de ataque. É necessário implementar autenticação e autorização no backend para garantir que cada usuário só possa realizar operações permitidas. |
+| Invasão da VM da aplicação para acessar credenciais e dados do banco | `vm-app`, Secret Manager e `vm-db` | A senha do banco é armazenada no Secret Manager, com acesso limitado às contas de serviço autorizadas. O banco não possui acesso público direto, e a comunicação entre as VMs é controlada por regras de firewall | Se um invasor comprometer a `vm-app`, poderá utilizar as permissões da própria máquina para obter a credencial do banco e tentar acessar ou modificar os dados. Os controles reduzem a exposição, mas não eliminam esse risco. |
+| Exclusão ou alteração indevida dos backups após o comprometimento do banco de dados | `vm-db`, arquivos de backup e bucket do Cloud Storage | A arquitetura prevê armazenar os backups em um bucket separado, com criptografia e permissões restritas para a conta de serviço responsável. A permissão efetiva da `sa-vm-db` no bucket é definida na parte do João | Se um invasor comprometer a VM do banco e conseguir permissões de exclusão ou sobrescrita no bucket, poderá destruir os backups e dificultar a recuperação dos dados. É necessário verificar as permissões efetivas e considerar mecanismos de retenção ou versionamento. |
+| Vazamento de senhas, chaves de acesso ou outros segredos pelo repositório GitHub | Repositório Git, credenciais do banco de dados e infraestrutura GCP | Uso do Secret Manager na infraestrutura GCP, variáveis de ambiente para fornecer credenciais e análise do histórico do repositório com Gitleaks | Se uma credencial real for publicada no Git, ela continua acessível pelo histórico mesmo após a remoção do arquivo e precisa ser revogada. A senha padrão do Vagrant que existia no histórico (`crytto`) nunca foi usada na GCP. O Gitleaks é executado novamente antes da tag `entrega-2`. |
