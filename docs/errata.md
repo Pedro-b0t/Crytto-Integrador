@@ -13,6 +13,7 @@ Toda mudança em relação ao projeto da Entrega 1 ([arquitetura.md](arquitetura
 | 6 | 5.7: VMs sem configuração adicional de segurança | Shielded VM (secure boot, vTPM e monitoramento de integridade), chaves SSH de projeto bloqueadas e console serial desativado em todas as VMs | Redução de achados da análise de IaC (S7) sem custo adicional | Nenhum | Pedro |
 | 7 | 5.5: backend Node.js na porta 3001 exposto no host pelo `docker-compose.app.yml` | Na nuvem, a porta 3001 não é publicada: o backend só é alcançado pelo nginx na rede interna do Compose | Menor privilégio, coerente com a matriz 5.5, que já não abria a 3001 no firewall | Nenhum | Pedro |
 | 8 | Entrega 1: crédito promocional GCP válido até 27/10/2026 | Os custos da Entrega 2 são pagos pelo grupo | O crédito expirou antes do período de testes (risco 8 da seção 5.10) | Nenhum | Pedro |
+| 9 | Matriz 5.5: saída da rede privada liberada para `0.0.0.0/0` | Saída restrita por regras de egress: DNS 53, HTTP/HTTPS 80/443 e PostgreSQL 5432 apenas da aplicação para o banco; demais destinos bloqueados | Controle S2 da Entrega 2; aplicação do princípio do menor privilégio | ADR-002 | Victor |
 
 ## A registrar pelos demais integrantes
 

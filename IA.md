@@ -7,7 +7,6 @@ Grupo: Pedro Henrique de Oliveira, Victor Nascimento Silva, Ana Luiza Ripoli The
 | Ferramenta | Onde foi usada |
 |---|---|
 | GitHub Copilot Chat (VS Code) | Análise do enunciado da Entrega 1 em relação ao repositório, rascunho dos textos de `docs/arquitetura.md`, dos três ADRs, do `README.md`, do `IA.md` e do `.drawio`, e revisão das estimativas da calculadora e das branches do grupo |
-| ChatGPT (OpenAI) | Apoio à elaboração da proposta de alta disponibilidade, documentação H1–H7, ADR-004, análise de segurança, interpretação dos relatórios Checkov e Gitleaks e organização das evidências da Entrega 2. |
 
 ## O que o grupo verificou ou corrigiu
 
@@ -19,14 +18,13 @@ Grupo: Pedro Henrique de Oliveira, Victor Nascimento Silva, Ana Luiza Ripoli The
 | Diagrama | A Ana criou a estrutura inicial no draw.io. A IA gerou um arquivo base com CIDRs, sub-redes e os três fluxos; o grupo ajusta o layout e exporta a imagem. |
 | CIDRs, rotas, matriz de segurança e tamanhos de instância | Rascunho gerado pela IA e revisado pelo grupo contra a documentação da GCP (VPC, rotas, firewall e tipos de máquina E2). |
 
-<<<<<<< HEAD
-## Uso de IA na Entrega 2 — Ana Luiza Ripoli
 ## Entrega 2
 
 | Ferramenta | Onde foi usada |
 |---|---|
 | GitHub Copilot (VS Code) | Leitura do enunciado e divisão de tarefas ([docs/TAREFAS-ENTREGA2.md](docs/TAREFAS-ENTREGA2.md)); rascunho do código Terraform da parte do Pedro (`versions.tf`, `providers.tf`, `variables.tf`, `locals.tf`, `project.tf`, `kms.tf`, `secrets.tf`, `iam.tf`, `compute.tf`, `outputs.tf`), dos startup scripts em `infra/templates/`, do `docker-compose.gcp.yml`, do `nginx.https.conf` e dos textos do README, da errata e de `docs/seguranca.md` (S1, S3 a S6) |
-| ChatGPT | Apoio à elaboração da documentação de alta disponibilidade, do ADR-004, da estimativa de custos e da análise de segurança da parte da Ana. Auxílio na interpretação dos resultados do Checkov e Gitleaks e na revisão dos documentos. |
+| GitHub Copilot (VS Code) | Consolidação e correção dos arquivos Terraform de rede, firewall e acesso administrativo da responsabilidade de Victor Nascimento Silva; revisão das branches da Ana e do Victor (formatação, egress do bastion, conflito de merge e codificação dos arquivos) |
+| ChatGPT (OpenAI) | Apoio à elaboração da proposta de alta disponibilidade (H1 a H7), do ADR-004, da estimativa de custos da HA e da análise de segurança da parte da Ana; interpretação dos relatórios do Checkov e do Gitleaks e organização das evidências |
 
 | Item gerado | Verificação ou correção feita pelo grupo |
 |---|---|
@@ -34,21 +32,6 @@ Grupo: Pedro Henrique de Oliveira, Victor Nascimento Silva, Ana Luiza Ripoli The
 | Startup scripts | Verificados com `bash -n` e `shellcheck` após renderização dos templates. |
 | HTTPS e Compose da nuvem | Testados localmente com Docker: redirecionamento 301 de HTTP para HTTPS, TLS com certificado autoassinado, `/health` com banco ativo, gravação e leitura pela API e porta 3001 não publicada. |
 | Senha fora do state (write-only) | Conferido na documentação do provider `google` (`secret_data_wo`) e do Terraform (variáveis efêmeras). |
-| Documentação de alta disponibilidade | Diagrama, documento H1 a H7 e ADR-004 revisados em relação aos requisitos da Entrega 2. A arquitetura HA foi documentada como proposta, sem implantação. |
-| Análise de segurança da Ana | Checkov executado inicialmente sobre `infra/`, com três achados registrados. Gitleaks executado sobre o histórico Git, sem vazamentos detectados naquela execução. Os relatórios foram salvos em `docs/evidencias/`. A análise do Terraform será atualizada após a integração da infraestrutura. |
-| Estimativa de custos HA | Valores organizados e comparados com o cenário A da Entrega 1, utilizando a calculadora de preços da Google Cloud. |
-=======
-## Entrega 2
-
-| Ferramenta | Onde foi usada |
-|---|---|
-| GitHub Copilot (VS Code) | Leitura do enunciado e divisão de tarefas ([docs/TAREFAS-ENTREGA2.md](docs/TAREFAS-ENTREGA2.md)); rascunho do código Terraform da parte do Pedro (`versions.tf`, `providers.tf`, `variables.tf`, `locals.tf`, `project.tf`, `kms.tf`, `secrets.tf`, `iam.tf`, `compute.tf`, `outputs.tf`), dos startup scripts em `infra/templates/`, do `docker-compose.gcp.yml`, do `nginx.https.conf` e dos textos do README, da errata e de `docs/seguranca.md` (S1, S3 a S6) |
-
-| Item gerado | Verificação ou correção feita pelo grupo |
-|---|---|
-| Código Terraform | `terraform fmt -check` e `terraform validate` executados; versões dos providers conferidas no Terraform Registry. Conferir `terraform plan` no primeiro apply real. |
-| Startup scripts | Verificados com `bash -n` e `shellcheck` após renderização dos templates. |
-| HTTPS e Compose da nuvem | Testados localmente com Docker: redirecionamento 301 de HTTP para HTTPS, TLS com certificado autoassinado, `/health` com banco ativo, gravação e leitura pela API e porta 3001 não publicada. |
-| Senha fora do state (write-only) | Conferido na documentação do provider `google` (`secret_data_wo`) e do Terraform (variáveis efêmeras). |
-
->>>>>>> origin/main
+| Documentação de alta disponibilidade | Diagrama, documento H1 a H7 e ADR-004 revisados pela Ana em relação aos requisitos da Entrega 2. A arquitetura HA foi documentada como proposta, sem implantação. |
+| Análise de segurança | Checkov executado sobre o Ansible e o Terraform e Trivy sobre o Terraform; Gitleaks sobre o histórico Git. Relatórios salvos em `docs/evidencias/` e cada achado conferido contra o código (por exemplo, o `CKV_GCP_32` foi identificado como falso positivo). |
+| Estimativa de custos HA | Valores obtidos pela Ana na Google Cloud Pricing Calculator e comparados com o cenário A da Entrega 1. |
