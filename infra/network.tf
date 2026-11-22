@@ -1,9 +1,12 @@
 resource "google_compute_network" "vpc" {
-  name                    = "vpc-grupo-x"
+  name                    = var.network_name
   auto_create_subnetworks = false
   mtu                     = 1460
   routing_mode            = "REGIONAL"
   description             = "VPC do projeto Crytto com segmentação pública e privada."
+
+  # Em um projeto novo, a API do Compute Engine precisa estar ativa antes da rede.
+  depends_on = [google_project_service.apis]
 }
 
 resource "google_compute_subnetwork" "pub_a" {
