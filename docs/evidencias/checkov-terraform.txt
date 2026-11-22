@@ -1,0 +1,138 @@
+﻿
+
+       _               _
+   ___| |__   ___  ___| | _______   __
+  / __| '_ \ / _ \/ __| |/ / _ \ \ / /
+ | (__| | | |  __/ (__|   < (_) \ V /
+  \___|_| |_|\___|\___|_|\_\___/ \_/
+
+By Prisma Cloud | version: 3.4.5 
+Update available 3.4.5 -> 3.4.6
+Run pip3 install -U checkov to update 
+
+
+terraform scan results:
+
+Passed checks: 24, Failed checks: 6, Skipped checks: 0
+
+Check: CKV_GCP_38: "Ensure VM disks for critical VMs are encrypted with Customer Supplied Encryption Keys (CSEK)"
+	PASSED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/encrypt-boot-disks-for-instances-with-cseks
+[0mCheck: CKV_GCP_31: "Ensure that instances are not configured to use the default service account with full access to all Cloud APIs"
+	PASSED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-iam-policies/bc-gcp-iam-2
+[0mCheck: CKV_GCP_34: "Ensure that no instance in the project overrides the project setting for enabling OSLogin(OSLogin needs to be enabled in project metadata for all instances)"
+	PASSED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-10
+[0mCheck: CKV_GCP_36: "Ensure that IP forwarding is not enabled on Instances"
+	PASSED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-12
+[0mCheck: CKV_GCP_35: "Ensure 'Enable connecting to serial ports' is not enabled for VM Instance"
+	PASSED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-11
+[0mCheck: CKV_GCP_39: "Ensure Compute instances are launched with Shielded VM enabled"
+	PASSED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/bc-gcp-general-y
+[0mCheck: CKV_GCP_38: "Ensure VM disks for critical VMs are encrypted with Customer Supplied Encryption Keys (CSEK)"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/encrypt-boot-disks-for-instances-with-cseks
+[0mCheck: CKV_GCP_30: "Ensure that instances are not configured to use the default service account"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-iam-policies/bc-gcp-iam-1
+[0mCheck: CKV_GCP_31: "Ensure that instances are not configured to use the default service account with full access to all Cloud APIs"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-iam-policies/bc-gcp-iam-2
+[0mCheck: CKV_GCP_40: "Ensure that Compute instances do not have public IP addresses"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-public-policies/bc-gcp-public-2
+[0mCheck: CKV_GCP_34: "Ensure that no instance in the project overrides the project setting for enabling OSLogin(OSLogin needs to be enabled in project metadata for all instances)"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-10
+[0mCheck: CKV_GCP_36: "Ensure that IP forwarding is not enabled on Instances"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-12
+[0mCheck: CKV_GCP_35: "Ensure 'Enable connecting to serial ports' is not enabled for VM Instance"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-11
+[0mCheck: CKV_GCP_39: "Ensure Compute instances are launched with Shielded VM enabled"
+	PASSED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/bc-gcp-general-y
+[0mCheck: CKV_GCP_38: "Ensure VM disks for critical VMs are encrypted with Customer Supplied Encryption Keys (CSEK)"
+	PASSED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/encrypt-boot-disks-for-instances-with-cseks
+[0mCheck: CKV_GCP_30: "Ensure that instances are not configured to use the default service account"
+	PASSED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-iam-policies/bc-gcp-iam-1
+[0mCheck: CKV_GCP_31: "Ensure that instances are not configured to use the default service account with full access to all Cloud APIs"
+	PASSED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-iam-policies/bc-gcp-iam-2
+[0mCheck: CKV_GCP_34: "Ensure that no instance in the project overrides the project setting for enabling OSLogin(OSLogin needs to be enabled in project metadata for all instances)"
+	PASSED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-10
+[0mCheck: CKV_GCP_36: "Ensure that IP forwarding is not enabled on Instances"
+	PASSED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-12
+[0mCheck: CKV_GCP_35: "Ensure 'Enable connecting to serial ports' is not enabled for VM Instance"
+	PASSED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-11
+[0mCheck: CKV_GCP_39: "Ensure Compute instances are launched with Shielded VM enabled"
+	PASSED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/bc-gcp-general-y
+[0mCheck: CKV_GCP_43: "Ensure KMS encryption keys are rotated within a period of 90 days"
+	PASSED for resource: google_kms_crypto_key.cmek
+	File: \kms.tf:17-25
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/bc-gcp-general-4
+[0mCheck: CKV_GCP_112: "Ensure KMS policy should not allow public access"
+	PASSED for resource: google_kms_crypto_key_iam_member.compute_agent
+	File: \kms.tf:28-34
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-iam-policies/bc-google-cloud-112
+[0mCheck: CKV2_GCP_8: "Ensure that Cloud KMS Key Rings are not anonymously or publicly accessible"
+	PASSED for resource: google_kms_key_ring.this
+	File: \kms.tf:10-15
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-iam-policies/ensure-gcp-cloud-kms-key-rings-is-not-publicly-accessible-1
+[0mCheck: CKV_GCP_32: "Ensure 'Block Project-wide SSH keys' is enabled for VM instances"
+	FAILED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-8
+[0mCheck: CKV_GCP_40: "Ensure that Compute instances do not have public IP addresses"
+	FAILED for resource: google_compute_instance.bastion
+	File: \compute.tf:22-63
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-public-policies/bc-gcp-public-2
+[0mCheck: CKV_GCP_32: "Ensure 'Block Project-wide SSH keys' is enabled for VM instances"
+	FAILED for resource: google_compute_instance.db
+	File: \compute.tf:65-111
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-8
+[0mCheck: CKV_GCP_32: "Ensure 'Block Project-wide SSH keys' is enabled for VM instances"
+	FAILED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-networking-policies/bc-gcp-networking-8
+[0mCheck: CKV_GCP_40: "Ensure that Compute instances do not have public IP addresses"
+	FAILED for resource: google_compute_instance.app
+	File: \compute.tf:113-164
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-public-policies/bc-gcp-public-2
+[0mCheck: CKV_GCP_82: "Ensure KMS keys are protected from deletion"
+	FAILED for resource: google_kms_crypto_key.cmek
+	File: \kms.tf:17-25
+	Guide: [1mhttps://docs.prismacloud.io/en/enterprise-edition/policy-reference/google-cloud-policies/google-cloud-general-policies/ensure-gcp-kms-keys-are-protected-from-deletion
+[0m

@@ -27,6 +27,11 @@ O plano de endereçamento proposto é:
 | `pub-b` | `10.20.2.0/24` | Sub-rede pública adicional, reservada para expansão |
 | `priv-a` | `10.20.10.0/24` | `vm-app-a`, IP `10.20.10.20` |
 | `priv-b` | `10.20.11.0/24` | `vm-app-b`, IP `10.20.11.20` |
+| Reserva para Private Service Access (Cloud SQL) | `10.20.100.0/24` | Intervalo reservado para conexão privada com o Cloud SQL; não é uma sub-rede de VMs |
+
+Para permitir a comunicação privada entre as VMs da aplicação e o Cloud SQL, a proposta reserva o intervalo `10.20.100.0/24` para o **Private Service Access (PSA)**.
+Esse intervalo não será utilizado para criar VMs. Ele será destinado à conexão privada com os serviços gerenciados do Google Cloud, permitindo que o banco de dados seja acessado sem a necessidade de um IP público.
+A configuração exigirá uma reserva de intervalo de endereços e uma conexão de serviços privados associada à VPC. A disponibilidade e o dimensionamento do intervalo deverão ser confirmados durante uma eventual implantação.
 
 O bastion permanece na sub-rede `pub-a`, com IP privado `10.20.1.10` e IP público estático.
 As duas VMs de aplicação não possuem IP público, reduzindo a exposição direta à internet.
@@ -42,10 +47,35 @@ A arquitetura propõe um **Load Balancer HTTPS externo**, responsável por receb
 
 O Load Balancer utiliza um endereço IP público estático e recebe conexões HTTPS na porta 443.
 As aplicações continuam executando o frontend React servido pelo nginx e o backend Node.js.
-Para verificar a disponibilidade das instâncias, será utilizado um **health check HTTP** no endpoint `/health`, já existente no backend.
-O endpoint verifica a comunicação com o PostgreSQL e retorna uma resposta de sucesso quando o banco está acessível. Em caso de falha, retorna HTTP 503.
+Para verificar a disponibilidade das instâncias, será utilizado um **health check HTTP** no endpoint `/healthz`, disponibilizado pelo nginx na porta 80.
+Esse endpoint deverá retornar HTTP 200 quando o nginx estiver funcionando, sem depender da conexão com o PostgreSQL. Dessa forma, uma falha temporária no banco de dados não fará com que as duas VMs sejam consideradas indisponíveis pelo Load Balancer.
+O endpoint `/health` do backend poderá continuar sendo utilizado separadamente para monitorar a comunicação com o banco de dados, mas não será utilizado como verificação de integridade do Load Balancer.
 Na implantação proposta, o balanceador deverá encaminhar tráfego somente às instâncias consideradas saudáveis. Se uma VM falhar, a outra poderá continuar atendendo às solicitações.
 O firewall deverá permitir o tráfego necessário do balanceador e dos verificadores de integridade, sem liberar acesso público direto às VMs.
+
+### Grupos de instâncias e regras de firewall
+
+As duas VMs da aplicação serão organizadas em grupos de instâncias
+não gerenciados, um na zona `us-central1-a` e outro na zona
+`us-central1-b`.
+Os dois grupos serão associados ao serviço de backend do Load
+Balancer HTTPS externo, permitindo distribuir as requisições entre
+as zonas.
+O health check utilizará HTTP na porta 80, acessando o endpoint
+`/healthz` do nginx.
+As regras de firewall deverão permitir o tráfego dos verificadores
+de integridade do Google Cloud, utilizando os intervalos:
+- `35.191.0.0/16`
+- `130.211.0.0/22`
+Essas permissões serão restritas às portas necessárias e às VMs
+da aplicação, sem liberar acesso público direto às instâncias.
+Para disponibilizar HTTPS, será necessário configurar um certificado
+TLS no Load Balancer. Um certificado gerenciado pelo Google exige
+um domínio configurado corretamente; caso não exista domínio
+disponível, poderá ser utilizado um certificado autogerenciado
+enviado ao balanceador, sujeito à validação de confiança pelo cliente.
+Todos esses componentes fazem parte da arquitetura proposta de
+alta disponibilidade e ainda não foram implantados.
 
 ## H3 — Estratégia de NAT
 
@@ -147,3 +177,26 @@ As principais melhorias são a redução de pontos únicos de falha, o isolament
 Por outro lado, essa estrutura possui custo superior ao cenário original e exige maior atenção à configuração e ao monitoramento.
 Considerando que o Crytto é um projeto acadêmico, a implantação completa de alta disponibilidade não é necessária para as demonstrações atuais. A proposta serve para mostrar como o sistema poderia evoluir caso tivesse maior quantidade de usuários e exigências de disponibilidade.
 A comparação financeira detalhada será apresentada separadamente na estimativa de custos da arquitetura HA.
+
+## 9. Comparação de custos — cenário atual e alta disponibilidade
+
+Para avaliar a viabilidade financeira da proposta, foram comparados os custos mensais estimados da arquitetura atual (cenário A) e da arquitetura com alta disponibilidade (cenário B).
+
+| Cenário | Custo mensal estimado |
+|---|---:|
+| Cenário A — Arquitetura atual | US$ 49,93 |
+| Cenário B — Alta disponibilidade | US$ 262,01 |
+| Diferença mensal | US$ 212,08 |
+| Aumento percentual | 424,8% |
+
+A arquitetura com alta disponibilidade apresenta um custo aproximadamente **5,25 vezes maior** que o cenário atual.
+
+O principal responsável pelo aumento é o **Cloud SQL com alta disponibilidade**, estimado em US$ 204,05 mensais, representando aproximadamente 78% do custo total do cenário B. Outros componentes importantes são o Load Balancer, estimado em US$ 18,25, e a utilização de duas VMs para a aplicação.
+
+Apesar dos benefícios de disponibilidade e recuperação automática, esse investimento não se justifica no momento para o Crytto, considerando seu caráter acadêmico, a estimativa de aproximadamente 50 usuários e a meta de disponibilidade de 95%.
+
+Portanto, a arquitetura HA permanece como uma proposta de evolução futura, caso o sistema passe a atender mais usuários ou apresente requisitos mais rigorosos de disponibilidade.
+
+Os valores são estimativas e podem variar conforme o consumo, a região e a configuração dos recursos.
+
+**Evidência da estimativa:** [Estimativa de custos do cenário HA](custos/estimativa-cenario-ha.pdf).
