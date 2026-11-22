@@ -19,11 +19,36 @@ Grupo: Pedro Henrique de Oliveira, Victor Nascimento Silva, Ana Luiza Ripoli The
 | Diagrama | A Ana criou a estrutura inicial no draw.io. A IA gerou um arquivo base com CIDRs, sub-redes e os três fluxos; o grupo ajusta o layout e exporta a imagem. |
 | CIDRs, rotas, matriz de segurança e tamanhos de instância | Rascunho gerado pela IA e revisado pelo grupo contra a documentação da GCP (VPC, rotas, firewall e tipos de máquina E2). |
 
+<<<<<<< HEAD
 ## Uso de IA na Entrega 2 — Ana Luiza Ripoli
+## Entrega 2
 
-O ChatGPT foi utilizado como ferramenta de apoio na elaboração
-da documentação de alta disponibilidade e na análise de segurança.
-Os comandos foram executados no ambiente local, e os
-resultados das verificações foram registrados como evidências.
-As recomendações de segurança ainda dependem de validação
-e, quando necessário, de implementação pelos responsáveis.
+| Ferramenta | Onde foi usada |
+|---|---|
+| GitHub Copilot (VS Code) | Leitura do enunciado e divisão de tarefas ([docs/TAREFAS-ENTREGA2.md](docs/TAREFAS-ENTREGA2.md)); rascunho do código Terraform da parte do Pedro (`versions.tf`, `providers.tf`, `variables.tf`, `locals.tf`, `project.tf`, `kms.tf`, `secrets.tf`, `iam.tf`, `compute.tf`, `outputs.tf`), dos startup scripts em `infra/templates/`, do `docker-compose.gcp.yml`, do `nginx.https.conf` e dos textos do README, da errata e de `docs/seguranca.md` (S1, S3 a S6) |
+| ChatGPT | Apoio à elaboração da documentação de alta disponibilidade, do ADR-004, da estimativa de custos e da análise de segurança da parte da Ana. Auxílio na interpretação dos resultados do Checkov e Gitleaks e na revisão dos documentos. |
+
+| Item gerado | Verificação ou correção feita pelo grupo |
+|---|---|
+| Código Terraform | `terraform fmt -check` e `terraform validate` executados; versões dos providers conferidas no Terraform Registry. Conferir `terraform plan` no primeiro apply real. |
+| Startup scripts | Verificados com `bash -n` e `shellcheck` após renderização dos templates. |
+| HTTPS e Compose da nuvem | Testados localmente com Docker: redirecionamento 301 de HTTP para HTTPS, TLS com certificado autoassinado, `/health` com banco ativo, gravação e leitura pela API e porta 3001 não publicada. |
+| Senha fora do state (write-only) | Conferido na documentação do provider `google` (`secret_data_wo`) e do Terraform (variáveis efêmeras). |
+| Documentação de alta disponibilidade | Diagrama, documento H1 a H7 e ADR-004 revisados em relação aos requisitos da Entrega 2. A arquitetura HA foi documentada como proposta, sem implantação. |
+| Análise de segurança da Ana | Checkov executado inicialmente sobre `infra/`, com três achados registrados. Gitleaks executado sobre o histórico Git, sem vazamentos detectados naquela execução. Os relatórios foram salvos em `docs/evidencias/`. A análise do Terraform será atualizada após a integração da infraestrutura. |
+| Estimativa de custos HA | Valores organizados e comparados com o cenário A da Entrega 1, utilizando a calculadora de preços da Google Cloud. |
+=======
+## Entrega 2
+
+| Ferramenta | Onde foi usada |
+|---|---|
+| GitHub Copilot (VS Code) | Leitura do enunciado e divisão de tarefas ([docs/TAREFAS-ENTREGA2.md](docs/TAREFAS-ENTREGA2.md)); rascunho do código Terraform da parte do Pedro (`versions.tf`, `providers.tf`, `variables.tf`, `locals.tf`, `project.tf`, `kms.tf`, `secrets.tf`, `iam.tf`, `compute.tf`, `outputs.tf`), dos startup scripts em `infra/templates/`, do `docker-compose.gcp.yml`, do `nginx.https.conf` e dos textos do README, da errata e de `docs/seguranca.md` (S1, S3 a S6) |
+
+| Item gerado | Verificação ou correção feita pelo grupo |
+|---|---|
+| Código Terraform | `terraform fmt -check` e `terraform validate` executados; versões dos providers conferidas no Terraform Registry. Conferir `terraform plan` no primeiro apply real. |
+| Startup scripts | Verificados com `bash -n` e `shellcheck` após renderização dos templates. |
+| HTTPS e Compose da nuvem | Testados localmente com Docker: redirecionamento 301 de HTTP para HTTPS, TLS com certificado autoassinado, `/health` com banco ativo, gravação e leitura pela API e porta 3001 não publicada. |
+| Senha fora do state (write-only) | Conferido na documentação do provider `google` (`secret_data_wo`) e do Terraform (variáveis efêmeras). |
+
+>>>>>>> origin/main

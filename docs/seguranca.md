@@ -1,78 +1,113 @@
-# Análise de Segurança — Crytto RPG Platform
+﻿# Seguran├ºa (Parte B)
 
-## S7 — Análise estática de segurança
+Controles S1 a S8, tratamento dos achados das ferramentas de an├ílise e an├ílise de amea├ºas da arquitetura implantada ([arquitetura.md](arquitetura.md)).
 
-Foram utilizadas as ferramentas Checkov e Gitleaks para
-identificar possíveis vulnerabilidades na infraestrutura
-e no histórico do repositório.
+## Controles obrigat├│rios
 
-### Resultados do Checkov
-
-Comando: `checkov -d infra/`
-
-- Verificações aprovadas: 4
-- Verificações com falha: 3
-- Verificações ignoradas: 0
-
-### Resultados do Gitleaks
-
-Comando: `gitleaks git .`
-
-- Commits analisados: 20
-- Vazamentos detectados: 0
-
-O Gitleaks não identificou vazamentos no histórico analisado.
-Entretanto, o Checkov identificou uma possível credencial
-exposta em um arquivo de configuração.
-
-### Evidências
-
-- `docs/evidencias/checkov-antes.txt`
-- `docs/evidencias/gitleaks-relatorio.json`
-
-## Tabela de achados de segurança
-
-| ID | Problema identificado | Gravidade estimada | Decisão | Justificativa |
+| # | Controle | Status | Onde est├í | Respons├ível |
 |---|---|---|---|---|
-| CKV_SECRET_4 | Credencial do PostgreSQL escrita diretamente no all.yml | Alta | Pendente | A senha deve ser removida dos arquivos versionados e protegida adequadamente. |
-| CKV2_ANSIBLE_1 | HTTP na verificação local do backend | Baixa | Aceito provisoriamente | A verificação utiliza localhost, sem exposição direta à rede externa. |
-| CKV2_ANSIBLE_1 | HTTP na verificação local do frontend | Baixa | Aceito provisoriamente | A verificação utiliza localhost. O acesso externo deve utilizar HTTPS. |
+| S1 | Endurecimento do SSH | Implementado no startup script; validar na demonstra├º├úo D3 | [infra/templates/common.sh](../infra/templates/common.sh) (`harden_ssh`) | Victor (valida├º├úo), Pedro (script) |
+| S2 | Sa├¡da restrita | Pendente | `infra/security.tf` | Victor |
+| S3 | HTTPS | Implementado | [nginx.https.conf](../nginx.https.conf), [infra/templates/app.sh.tftpl](../infra/templates/app.sh.tftpl) | Pedro |
+| S4 | Gest├úo de segredos | Implementado | [infra/secrets.tf](../infra/secrets.tf), [infra/variables.tf](../infra/variables.tf) (`db_password`) | Pedro |
+| S5 | Menor privil├®gio para as inst├óncias | Implementado para a senha do banco; falta a permiss├úo do bucket de backup | [infra/iam.tf](../infra/iam.tf) | Pedro, Jo├úo |
+| S6 | Criptografia em repouso | Implementado nos discos; falta o bucket de backup | [infra/kms.tf](../infra/kms.tf), [infra/compute.tf](../infra/compute.tf) | Pedro, Jo├úo |
+| S7 | An├ílise automatizada | Pendente | `docs/evidencias/` | Ana |
+| S8 | Prote├º├úo da conta (MFA) | Pendente: captura de tela | `docs/evidencias/` | Pedro |
 
-## Melhorias realizadas
+### S1: endurecimento do SSH
 
-Foi alterado o arquivo `infra/ansible/playbook.yml`:
+Cada VM recebe, no primeiro boot, o arquivo `/etc/ssh/sshd_config.d/00-crytto-hardening.conf`:
 
-- Permissão do arquivo .env alterada de 0644 para 0600.
-- Adicionado `no_log: true` à tarefa que gera o .env.
+```text
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+```
 
-Essas alterações reduzem a exposição de informações sensíveis,
-mas ainda não eliminam a credencial fixa identificada pelo Checkov.
+O OpenSSH do Ubuntu inclui `sshd_config.d/*.conf` no in├¡cio do `sshd_config` e usa o primeiro valor encontrado; o prefixo `00-` garante preced├¬ncia sobre os arquivos da imagem. A configura├º├úo ├® validada com `sshd -t` antes do `reload`. Al├®m disso, as VMs aceitam apenas a chave do grupo (`block-project-ssh-keys = true`) e n├úo usam OS Login.
 
-## Cinco ameaças à arquitetura
+Verifica├º├úo (resultado esperado: `Permission denied (publickey)`):
 
-| Ameaça | Ativo afetado | Controle de segurança | Risco residual |
+```bash
+ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password crytto@<IP_PUBLICO_BASTION>
+```
+
+### S2: sa├¡da restrita
+
+_A preencher por Victor._
+
+### S3: HTTPS
+
+- O nginx da `vm-app` atende em 443 com TLS 1.2 e 1.3. A porta 80 s├│ responde `301` para `https://` (e `/healthz`, reservado a health checks).
+- Certificado autoassinado gerado na pr├│pria VM pelo startup script, com `subjectAltName` igual ao IP est├ítico da aplica├º├úo e validade de 90 dias. A chave privada fica em `/etc/crytto/tls/server.key` (root, 0600) e nunca sai da VM.
+- Cabe├ºalhos `X-Content-Type-Options`, `X-Frame-Options` e `Referrer-Policy`; vers├úo do nginx oculta (`server_tokens off`).
+- N├úo foi usado certificado p├║blico porque o grupo n├úo tem dom├¡nio pr├│prio. Com um dom├¡nio, bastaria trocar o certificado por um do Let's Encrypt (certbot) sem alterar a infraestrutura.
+
+Verifica├º├úo:
+
+```bash
+curl -vk https://<IP_APP>/health          # negocia├º├úo TLS e {"status":"ok","db":"up"}
+curl -sI http://<IP_APP>/                  # HTTP/1.1 301 Moved Permanently, Location: https://...
+```
+
+### S4: gest├úo de segredos
+
+- A senha do PostgreSQL entra no Terraform apenas por `TF_VAR_db_password`. A vari├ível ├® `sensitive = true` e `ephemeral = true`.
+- O valor ├® gravado no Secret Manager (`crytto-db-password`) pelo argumento write-only `secret_data_wo`, portanto **n├úo aparece no plan, nos outputs nem no `terraform.tfstate`**. Rota├º├úo: incrementar `db_password_version`.
+- As VMs leem o segredo em tempo de boot pela API do Secret Manager e o gravam apenas em `/etc/crytto/db.env` e `/etc/crytto/app.env` (root, 0600), fora do diret├│rio do c├│digo.
+- Os arquivos versionados n├úo cont├¬m senha: `.gitignore` bloqueia `*.tfvars`, `*.tfstate`, `.terraform/`, chaves e certificados.
+
+Verifica├º├úo (D5):
+
+```bash
+git grep -n -i "password" -- infra/ docker-compose.gcp.yml   # s├│ nomes de vari├íveis e recursos, nenhum valor
+terraform state show google_secret_manager_secret_version.db_password   # sem o valor da senha
+gcloud secrets versions list crytto-db-password
+```
+
+### S5: menor privil├®gio para as inst├óncias
+
+| VM | Service account | Permiss├Áes |
+|---|---|---|
+| `vm-bastion` | nenhuma | Nenhuma: s├│ repassa SSH |
+| `vm-app` | `sa-vm-app` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password` |
+| `vm-db` | `sa-vm-db` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password`; grava├º├úo no bucket de backup (a definir por Jo├úo) |
+
+As permiss├Áes s├úo concedidas no pr├│prio recurso (IAM do segredo), n├úo no projeto. As VMs obt├¬m tokens de curta dura├º├úo do metadata server; nenhuma chave de service account ├® criada ou gravada nas inst├óncias. Nenhuma VM usa a service account padr├úo do Compute Engine (que tem papel de editor no projeto).
+
+### S6: criptografia em repouso
+
+- Key ring `kr-crytto-<sufixo>` e chave `cmek-crytto` no Cloud KMS (`us-central1`), com rota├º├úo autom├ítica a cada 90 dias.
+- Os tr├¬s discos de boot usam a chave por `kms_key_self_link` ([infra/compute.tf](../infra/compute.tf)). Os dados do PostgreSQL ficam no disco de boot da `vm-db`; snapshots desses discos herdam a mesma chave.
+- Apenas o agente de servi├ºo do Compute Engine recebe `roles/cloudkms.cryptoKeyEncrypterDecrypter` na chave.
+- O bucket de backup (Jo├úo) deve usar a mesma chave (output `kms_key_id`), concedendo o papel ao agente de servi├ºo do Cloud Storage.
+
+Verifica├º├úo:
+
+```bash
+gcloud compute disks describe vm-db --zone us-central1-a --format="value(diskEncryptionKey.kmsKeyName)"
+```
+
+### S7: an├ílise automatizada
+
+_A preencher por Ana (relat├│rios de Trivy/Checkov e Gitleaks em `docs/evidencias/`)._
+
+### S8: prote├º├úo da conta
+
+_Captura de tela do MFA habilitado, sem dados sens├¡veis, em `docs/evidencias/` (Pedro)._
+
+## Tratamento dos achados
+
+_A preencher por Ana. Todo achado de severidade alta ou cr├¡tica precisa de decis├úo._
+
+| Achado | Severidade | Recurso | Decis├úo | Justificativa |
+|---|---|---|---|---|
+
+## An├ílise de amea├ºas
+
+_A preencher por Ana. No m├¡nimo cinco amea├ºas concretas ├á arquitetura do grupo._
+
+| Amea├ºa | Ativo afetado | Controle aplicado | Risco residual |
 |---|---|---|---|
-| 1. Acesso SSH não autorizado | Máquinas virtuais | Restringir o SSH ao IP autorizado e utilizar autenticação por chave, passando pelo bastion. | Uma chave comprometida ainda pode permitir acesso indevido. |
-| 2. Vazamento de senhas do banco | PostgreSQL e dados dos usuários | Armazenar credenciais fora do código, restringir permissões e realizar rotação das senhas expostas. | Uma credencial ainda pode ser comprometida durante sua utilização. |
-| 3. Acesso indevido ao banco de dados | PostgreSQL | Manter o banco sem IP público e permitir conexões somente das máquinas autorizadas. | Uma aplicação comprometida pode ser utilizada para acessar o banco. |
-| 4. Interceptação de informações | Comunicação entre usuários e aplicação | Utilizar HTTPS para proteger o tráfego externo. | Configurações incorretas ou certificados vencidos podem comprometer a proteção. |
-| 5. Exploração de vulnerabilidades na infraestrutura | Servidores e aplicação | Executar verificações de segurança com Checkov e Gitleaks, corrigindo ou justificando os problemas encontrados. | Novas vulnerabilidades podem surgir depois das verificações. |
-
-## Requisitos de segurança — S1 a S8
-
-Esta seção reúne os controles de segurança exigidos
-na segunda entrega do projeto.
-
-O andamento de cada requisito será atualizado conforme
-as evidências e implementações dos integrantes do grupo.
-
-| Requisito | Controle ou evidência | Responsável | Situação |
-|---|---|---|---|
-| S1 | Desativar autenticação SSH por senha e login direto do root em todas as VMs | Victor | Pendente de verificação |
-| S2 | Restringir regras de saída da rede: HTTP/HTTPS, DNS e PostgreSQL apenas entre máquinas autorizadas | Victor | Pendente de verificação |
-| S3 | Configurar HTTPS no nginx e redirecionar HTTP para HTTPS | Pedro | Pendente de verificação |
-| S4 | Remover a senha fixa do banco do código e utilizar um mecanismo seguro para fornecer credenciais | Pedro | Pendente de verificação |
-| S5 | Permissões restritas da service account de backup | A confirmar | Pendente de verificação |
-| S6 | Criptografia do bucket de backup | A confirmar | Pendente de verificação |
-| S7 | Análise com Checkov e Gitleaks | Ana | Executado; achados em análise |
-| S8 | Autenticação multifator na conta GCP | A confirmar | Pendente de evidência |

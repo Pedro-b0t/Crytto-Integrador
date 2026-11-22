@@ -1,0 +1,6 @@
+# Scripts executados nas VMs Linux precisam de LF, mesmo em checkouts no Windows.
+*.sh     text eol=lf
+*.tftpl  text eol=lf
+*.tf     text eol=lf
+*.hcl    text eol=lf
+nginx*.conf text eol=lf
