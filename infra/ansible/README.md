@@ -16,6 +16,12 @@ Pré-requisitos:
 - VMs criadas e acessíveis por SSH.
 - Ansible instalado na máquina de controle.
 - Chaves Vagrant disponíveis em `.vagrant/machines/*/virtualbox/private_key`.
+- Variáveis de ambiente com a senha do banco (não ficam no código; o `deploy.sh` para com erro se `CRYTTO_DB_PASSWORD` não estiver definida). Use sempre a mesma senha, porque o PostgreSQL só a aplica na primeira inicialização do volume:
+
+  ```bash
+  export CRYTTO_DB_PASSWORD='<senha-local>'
+  export CRYTTO_DATABASE_URL="postgres://crytto:${CRYTTO_DB_PASSWORD}@192.168.56.22:5432/crytto"
+  ```
 
 A partir da raiz do projeto:
 

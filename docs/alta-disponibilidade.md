@@ -176,22 +176,22 @@ A proposta de alta disponibilidade do Crytto melhora a continuidade do serviço 
 As principais melhorias são a redução de pontos únicos de falha, o isolamento das VMs de aplicação e a possibilidade de recuperação automática diante de determinadas falhas.
 Por outro lado, essa estrutura possui custo superior ao cenário original e exige maior atenção à configuração e ao monitoramento.
 Considerando que o Crytto é um projeto acadêmico, a implantação completa de alta disponibilidade não é necessária para as demonstrações atuais. A proposta serve para mostrar como o sistema poderia evoluir caso tivesse maior quantidade de usuários e exigências de disponibilidade.
-A comparação financeira detalhada será apresentada separadamente na estimativa de custos da arquitetura HA.
+A comparação financeira detalhada está na seção 9.
 
 ## 9. Comparação de custos — cenário atual e alta disponibilidade
 
-Para avaliar a viabilidade financeira da proposta, foram comparados os custos mensais estimados da arquitetura atual (cenário A) e da arquitetura com alta disponibilidade (cenário B).
+Para avaliar a viabilidade financeira da proposta, foram comparados os custos mensais estimados da arquitetura implantada em operação contínua (cenário A da Entrega 1) e da proposta de alta disponibilidade, também em operação contínua.
 
 | Cenário | Custo mensal estimado |
 |---|---:|
-| Cenário A — Arquitetura atual | US$ 49,93 |
-| Cenário B — Alta disponibilidade | US$ 262,01 |
+| Arquitetura implantada (Entrega 1, cenário A) | US$ 49,93 |
+| Proposta de alta disponibilidade | US$ 262,01 |
 | Diferença mensal | US$ 212,08 |
 | Aumento percentual | 424,8% |
 
 A arquitetura com alta disponibilidade apresenta um custo aproximadamente **5,25 vezes maior** que o cenário atual.
 
-O principal responsável pelo aumento é o **Cloud SQL com alta disponibilidade**, estimado em US$ 204,05 mensais, representando aproximadamente 78% do custo total do cenário B. Outros componentes importantes são o Load Balancer, estimado em US$ 18,25, e a utilização de duas VMs para a aplicação.
+O principal responsável pelo aumento é o **Cloud SQL com alta disponibilidade**, estimado em US$ 204,05 mensais, representando aproximadamente 78% do custo total da proposta. Outros componentes importantes são o Load Balancer, estimado em US$ 18,25, e a utilização de duas VMs para a aplicação.
 
 Apesar dos benefícios de disponibilidade e recuperação automática, esse investimento não se justifica no momento para o Crytto, considerando seu caráter acadêmico, a estimativa de aproximadamente 50 usuários e a meta de disponibilidade de 95%.
 

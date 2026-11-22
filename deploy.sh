@@ -19,6 +19,14 @@ if ! command -v ansible-playbook >/dev/null 2>&1; then
   exit 1
 fi
 
+# A senha do banco não fica no código (achado CKV_SECRET_4). Use sempre a mesma senha:
+# o PostgreSQL só a aplica na primeira inicialização do volume de dados.
+if [ -z "${CRYTTO_DB_PASSWORD:-}" ]; then
+  echo "ERRO: defina CRYTTO_DB_PASSWORD (ex.: export CRYTTO_DB_PASSWORD=\"\$(openssl rand -hex 16)\")."
+  exit 1
+fi
+export CRYTTO_DATABASE_URL="${CRYTTO_DATABASE_URL:-postgres://crytto:${CRYTTO_DB_PASSWORD}@192.168.56.22:5432/crytto}"
+
 echo "==> Subindo VM"
 "$VAGRANT_CMD" up
 
