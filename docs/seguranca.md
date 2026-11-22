@@ -7,7 +7,7 @@ Controles S1 a S8, tratamento dos achados das ferramentas de análise e análise
 | # | Controle | Status | Onde está | Responsável |
 |---|---|---|---|---|
 | S1 | Endurecimento do SSH | Implementado no startup script; validar na demonstração D3 | [infra/templates/common.sh](../infra/templates/common.sh) (`harden_ssh`) | Victor (validação), Pedro (script) |
-| S2 | Saída restrita | Pendente | `infra/security.tf` | Victor |
+| S2 | Saída restrita | Implementado nas três VMs | [infra/security.tf](../infra/security.tf) | Victor |
 | S3 | HTTPS | Implementado | [nginx.https.conf](../nginx.https.conf), [infra/templates/app.sh.tftpl](../infra/templates/app.sh.tftpl) | Pedro |
 | S4 | Gestão de segredos | Implementado | [infra/secrets.tf](../infra/secrets.tf), [infra/variables.tf](../infra/variables.tf) (`db_password`) | Pedro |
 | S5 | Menor privilégio para as instâncias | Implementado para a senha do banco; falta a permissão do bucket de backup | [infra/iam.tf](../infra/iam.tf) | Pedro, João |
@@ -36,7 +36,16 @@ ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password crytto@<IP_P
 
 ### S2: saída restrita
 
-_A preencher por Victor._
+As instâncias `vm-bastion`, `vm-app` e `vm-db` recebem regras de egress por tag:
+
+- DNS: TCP e UDP na porta 53.
+- HTTP/HTTPS: TCP nas portas 80 e 443.
+- PostgreSQL: TCP na porta 5432 apenas da `vm-app` para o CIDR `priv-a`.
+- SSH: TCP 22 apenas do `vm-bastion` para o CIDR da VPC (salto para `vm-app` e `vm-db`).
+- A regra `deny` de prioridade 65534 bloqueia todo o restante da saída.
+- A `vm-db` não possui IP público; sua saída externa ocorre pelo Cloud NAT reservado.
+
+Essa configuração substitui a saída aberta da Entrega 1 e limita movimentação lateral e comunicação com destinos externos não necessários.
 
 ### S3: HTTPS
 

@@ -7,6 +7,7 @@ Grupo: Pedro Henrique de Oliveira, Victor Nascimento Silva, Ana Luiza Ripoli The
 | Ferramenta | Onde foi usada |
 |---|---|
 | GitHub Copilot Chat (VS Code) | Análise do enunciado da Entrega 1 em relação ao repositório, rascunho dos textos de `docs/arquitetura.md`, dos três ADRs, do `README.md`, do `IA.md` e do `.drawio`, e revisão das estimativas da calculadora e das branches do grupo |
+| GitHub Copilot (VS Code) | Consolidação e correção dos arquivos Terraform de rede, firewall e acesso administrativo da responsabilidade de Victor Nascimento Silva |
 
 ## O que o grupo verificou ou corrigiu
 

@@ -240,6 +240,37 @@ O código Ansible está separado em [infra/ansible](./infra/ansible/README.md).
 - Postgres: conexão em `localhost:5433` no host (ou `192.168.56.22:5432` na rede privada).
 - Playbook pode ser executado mais de uma vez sem duplicar configuração crítica.
 
+## Validação do acesso administrativo na Entrega 2
+
+Após o provisionamento Terraform, conecte-se ao bastion usando a chave pública configurada:
+
+```bash
+ssh -i ~/.ssh/chave-grupo crytto@<ip_publico_bastion>
+```
+
+No bastion, confirme o salto para uma VM privada:
+
+```bash
+ssh -J crytto@<ip_publico_bastion> crytto@<ip_privado_vm>
+```
+
+A autenticação por senha deve ser recusada:
+
+```bash
+ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password \
+  crytto@<ip_publico_bastion>
+```
+
+O resultado esperado é `Permission denied (publickey)`.
+
+Na VM privada, confirme a saída pelo NAT:
+
+```bash
+curl -s https://ifconfig.me
+```
+
+O resultado deve ser igual ao IP do Cloud NAT, obtido com `terraform output nat_public_ip`.
+
 ## Cloud Run na v2
 
 - A v2 não faz deploy em Cloud Run.
