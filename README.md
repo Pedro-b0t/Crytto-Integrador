@@ -245,20 +245,20 @@ O código Ansible está separado em [infra/ansible](./infra/ansible/README.md).
 Após o provisionamento Terraform, conecte-se ao bastion usando a chave pública configurada:
 
 ```bash
-ssh -i <chave_privada> <usuario>@<ip_publico_bastion>
+ssh -i ~/.ssh/chave-grupo crytto@<ip_publico_bastion>
 ```
 
 No bastion, confirme o salto para uma VM privada:
 
 ```bash
-ssh -J <usuario>@<ip_publico_bastion> <usuario>@<ip_privado_vm>
+ssh -J crytto@<ip_publico_bastion> crytto@<ip_privado_vm>
 ```
 
 A autenticação por senha deve ser recusada:
 
 ```bash
 ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password \
-  <usuario>@<ip_publico_bastion>
+  crytto@<ip_publico_bastion>
 ```
 
 O resultado esperado é `Permission denied (publickey)`.
@@ -269,7 +269,7 @@ Na VM privada, confirme a saída pelo NAT:
 curl -s https://ifconfig.me
 ```
 
-O resultado deve ser o valor de `google_compute_address.nat_ip.address`, obtido com `terraform output nat_ip`.
+O resultado deve ser igual ao IP do Cloud NAT, obtido com `terraform output nat_public_ip`.
 
 ## Cloud Run na v2
 
