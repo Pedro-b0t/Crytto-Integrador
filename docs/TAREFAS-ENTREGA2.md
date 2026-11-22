@@ -13,6 +13,7 @@ A divisão segue o que cada integrante fez na Entrega 1, para aproveitar o conhe
 
 ## Regras para todos (leiam antes de começar)
 
+- **Projeto GCP: `crytto-integrador`.** Peçam ao Pedro acesso ao projeto e usem `project_id = "crytto-integrador"` no `infra/terraform.tfvars` (o ID antigo `crytto-rpg-2026` não é mais usado).
 - **Nada de criar ou alterar recursos pelo console da GCP.** O console serve só para consultar. Recurso criado na mão = requisito não atendido. Exceções: conta, credenciais, alerta de orçamento e bucket de remote state.
 - **Nunca commitar** chave privada, `*.tfvars` real, `*.tfstate`, `.terraform/` ou senha. Se acontecer, avisem na hora: a credencial precisa ser revogada e registrada na errata.
 - **Custo:** o NAT e os IPs cobram por hora mesmo parados. Subam o ambiente só para testar e rodem `terraform destroy` ao terminar cada sessão.

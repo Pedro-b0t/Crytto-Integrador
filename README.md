@@ -23,14 +23,25 @@ Documentação desta entrega: [docs/seguranca.md](docs/seguranca.md), [docs/alta
 
 ### Pré-requisitos
 
-1. Conta GCP com faturamento ativo, MFA habilitado e alerta de orçamento configurado (evidências em `docs/evidencias/`).
-2. [Terraform](https://developer.hashicorp.com/terraform/install) **1.17.2**, versão fixada em [infra/versions.tf](infra/versions.tf). Os providers (`google` 6.50.0 e `random` 3.9.1) são baixados pelo `terraform init` conforme o [.terraform.lock.hcl](infra/.terraform.lock.hcl) versionado.
-3. [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) autenticado. As credenciais ficam fora do código:
+1. Acesso ao projeto GCP do grupo, **`crytto-integrador`**, com MFA habilitado na conta e alerta de orçamento configurado (evidências em `docs/evidencias/`).
+
+   O projeto e o vínculo com a conta de faturamento foram criados uma única vez, fora do Terraform, assim como a conta e o alerta de orçamento (exceções permitidas pelo enunciado). Tudo **dentro** do projeto é criado somente pelo Terraform. Para reproduzir em outro projeto, basta trocar `project_id`:
 
    ```bash
+   gcloud projects create <PROJECT_ID> --name="crytto-integrador"
+   gcloud billing projects link <PROJECT_ID> --billing-account=<ID_DA_CONTA_DE_FATURAMENTO>
+   # Integrantes: o dono do projeto concede acesso (o apply também cria permissões IAM)
+   gcloud projects add-iam-policy-binding <PROJECT_ID> --member="user:<EMAIL>" --role="roles/owner"
+   ```
+
+2. [Terraform](https://developer.hashicorp.com/terraform/install) **1.17.2**, versão fixada em [infra/versions.tf](infra/versions.tf). Os providers (`google` 6.50.0 e `random` 3.9.1) são baixados pelo `terraform init` conforme o [.terraform.lock.hcl](infra/.terraform.lock.hcl) versionado.
+3. [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) autenticado. O Terraform usa as *Application Default Credentials* (o `gcloud auth login` sozinho não basta). As credenciais ficam fora do código:
+
+   ```bash
+   gcloud auth login
+   gcloud config set project crytto-integrador
    gcloud auth application-default login
-   gcloud config set project <PROJECT_ID>
-   gcloud auth application-default set-quota-project <PROJECT_ID>
+   gcloud auth application-default set-quota-project crytto-integrador
    # APIs mínimas para o Terraform conseguir habilitar as demais (compute, kms, secret manager, iam)
    gcloud services enable serviceusage.googleapis.com cloudresourcemanager.googleapis.com
    ```

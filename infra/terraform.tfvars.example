@@ -1,7 +1,8 @@
 # Copie para terraform.tfvars (ignorado pelo Git) e ajuste os valores.
 # A senha do banco NÃO vai aqui: use a variável de ambiente TF_VAR_db_password.
 
-project_id = "seu-projeto-gcp"
+# Projeto GCP dedicado do grupo (criado fora do Terraform, ver README).
+project_id = "crytto-integrador"
 region     = "us-central1"
 zone       = "us-central1-a"
 
