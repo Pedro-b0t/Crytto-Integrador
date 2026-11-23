@@ -125,6 +125,7 @@ Abra `terraform output -raw app_url` no navegador e aceite o certificado autoass
 | 7 | app | Gravar `/etc/crytto/app.env` (0600) | `DATABASE_URL=postgres://crytto:<senha>@10.20.10.10:5432/crytto`, `PGSSL=false`, `FRONTEND_URL=https://<IP_APP>` |
 | 8 | app | Certificado autoassinado (S3) | `openssl req -x509 -nodes -newkey rsa:2048 -days 90 -keyout /etc/crytto/tls/server.key -out /etc/crytto/tls/server.crt -subj "/CN=<IP_APP>" -addext "subjectAltName=IP:<IP_APP>"` |
 | 9 | app | Subir frontend (nginx 80/443) e backend | `cd /opt/crytto && docker compose -f docker-compose.gcp.yml up -d --build` |
+| 10 | db | Rotina de backup (B6) | gravar `/etc/crytto/backup.env` (`BUCKET`, `DB_NAME`, `DB_USER`), copiar [infra/templates/backup.sh](infra/templates/backup.sh) para `/usr/local/bin/crytto-backup.sh`, criar `crytto-backup.service` e `crytto-backup.timer` (diário, 06:00 UTC), `systemctl enable --now crytto-backup.timer` e `systemctl start crytto-backup.service` para a primeira cópia |
 
 A configuração usada na nuvem está em [docker-compose.gcp.yml](docker-compose.gcp.yml) e [nginx.https.conf](nginx.https.conf). Os arquivos `docker-compose.yml`, `nginx.conf` e o Ansible continuam servindo à execução local com Vagrant.
 
@@ -135,6 +136,19 @@ ssh crytto@<IP_PUBLICO_BASTION>
 ssh -J crytto@<IP_PUBLICO_BASTION> crytto@<IP_PRIVADO>
 ```
 
+### Backup (política mínima, D6)
+
+O bucket, a regra de expiração (1 dia em `diario/`), a criptografia e a permissão da `vm-db` são criados pelo Terraform ([infra/backup.tf](infra/backup.tf)). O dump diário é instalado pelo startup script da `vm-db` e gera uma cópia já na criação do ambiente. Plano completo em [docs/backup.md](docs/backup.md).
+
+```bash
+cd infra
+BUCKET=$(terraform output -raw backup_bucket_name)
+gcloud storage ls -l gs://$BUCKET/diario/                       # cópia existente
+gcloud storage buckets describe gs://$BUCKET --format="yaml(lifecycle_config,default_kms_key)"
+# Na vm-db (via bastion): backup imediato e agenda
+sudo systemctl start crytto-backup.service && sudo journalctl -u crytto-backup.service -n 3
+systemctl list-timers crytto-backup.timer
+```
 ### Destruir a infraestrutura (destroy)
 
 ```bash
@@ -142,7 +156,7 @@ cd infra
 terraform destroy
 ```
 
-Depois, confirme no console (somente consulta) que não restam Cloud NAT, IPs externos, discos, snapshots nem buckets. Buckets com objetos podem impedir a destruição; consulte a documentação do provider (`force_destroy`). O key ring do Cloud KMS não pode ser apagado na GCP (é só removido do state, sem custo); as versões da chave são destruídas 24 h após o destroy.
+Depois, confirme no console (somente consulta) que não restam Cloud NAT, IPs externos, discos, snapshots nem buckets. O bucket de backup tem `force_destroy = true`, então é apagado mesmo com cópias dentro. O key ring do Cloud KMS não pode ser apagado na GCP (é só removido do state, sem custo); as versões da chave são destruídas 24 h após o destroy.
 
 ### Divisão das demonstrações
 

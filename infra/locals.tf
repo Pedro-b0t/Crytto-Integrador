@@ -28,10 +28,13 @@ locals {
   db_startup_script = replace(join("\n", [
     local.common_script,
     templatefile("${path.module}/templates/db.sh.tftpl", {
-      project_id   = var.project_id
-      db_secret_id = google_secret_manager_secret.db_password.secret_id
-      db_name      = var.db_name
-      db_user      = var.db_user
+      project_id      = var.project_id
+      db_secret_id    = google_secret_manager_secret.db_password.secret_id
+      db_name         = var.db_name
+      db_user         = var.db_user
+      backup_bucket   = google_storage_bucket.backup.name
+      backup_schedule = var.backup_schedule
+      backup_script   = file("${path.module}/templates/backup.sh")
     }),
   ]), "\r", "")
 
