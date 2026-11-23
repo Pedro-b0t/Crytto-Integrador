@@ -1,0 +1,1402 @@
+﻿
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # data.google_storage_project_service_account.gcs will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "google_storage_project_service_account" "gcs" {
+      + email_address = (known after apply)
+      + id            = (known after apply)
+      + member        = (known after apply)
+      + project       = "crytto-integrador"
+    }
+
+  # google_compute_address.app will be created
+  + resource "google_compute_address" "app" {
+      + address            = (known after apply)
+      + address_type       = "EXTERNAL"
+      + creation_timestamp = (known after apply)
+      + effective_labels   = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + id                 = (known after apply)
+      + label_fingerprint  = (known after apply)
+      + name               = "ip-app"
+      + network_tier       = "PREMIUM"
+      + prefix_length      = (known after apply)
+      + project            = "crytto-integrador"
+      + purpose            = (known after apply)
+      + region             = "us-central1"
+      + self_link          = (known after apply)
+      + subnetwork         = (known after apply)
+      + terraform_labels   = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + users              = (known after apply)
+    }
+
+  # google_compute_address.bastion will be created
+  + resource "google_compute_address" "bastion" {
+      + address            = (known after apply)
+      + address_type       = "EXTERNAL"
+      + creation_timestamp = (known after apply)
+      + effective_labels   = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + id                 = (known after apply)
+      + label_fingerprint  = (known after apply)
+      + name               = "ip-bastion"
+      + network_tier       = "PREMIUM"
+      + prefix_length      = (known after apply)
+      + project            = "crytto-integrador"
+      + purpose            = (known after apply)
+      + region             = "us-central1"
+      + self_link          = (known after apply)
+      + subnetwork         = (known after apply)
+      + terraform_labels   = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + users              = (known after apply)
+    }
+
+  # google_compute_address.nat will be created
+  + resource "google_compute_address" "nat" {
+      + address            = (known after apply)
+      + address_type       = "EXTERNAL"
+      + creation_timestamp = (known after apply)
+      + description        = "IP externo reservado para o Cloud NAT."
+      + effective_labels   = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + id                 = (known after apply)
+      + label_fingerprint  = (known after apply)
+      + labels             = {
+          + "ambiente"       = "entrega2"
+          + "gerenciado-por" = "terraform"
+          + "grupo"          = "grupo-x"
+          + "projeto"        = "crytto"
+        }
+      + name               = "nat-ip-grupo-x"
+      + network_tier       = (known after apply)
+      + prefix_length      = (known after apply)
+      + project            = "crytto-integrador"
+      + purpose            = (known after apply)
+      + region             = "us-central1"
+      + self_link          = (known after apply)
+      + subnetwork         = (known after apply)
+      + terraform_labels   = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + users              = (known after apply)
+    }
+
+  # google_compute_firewall.allow_http_https_public will be created
+  + resource "google_compute_firewall" "allow_http_https_public" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite tr├ífego p├║blico em HTTP e HTTPS para a VM de aplica├º├úo."
+      + destination_ranges = (known after apply)
+      + direction          = "INGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-app-http-https"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + source_ranges      = [
+          + "0.0.0.0/0",
+        ]
+      + target_tags        = [
+          + "app",
+        ]
+
+      + allow {
+          + ports    = [
+              + "80",
+              + "443",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_firewall.allow_postgres_from_app will be created
+  + resource "google_compute_firewall" "allow_postgres_from_app" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite apenas a aplica├º├úo acessar o PostgreSQL na sub-rede privada."
+      + destination_ranges = (known after apply)
+      + direction          = "INGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-db-postgres"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + source_tags        = [
+          + "app",
+        ]
+      + target_tags        = [
+          + "db",
+        ]
+
+      + allow {
+          + ports    = [
+              + "5432",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_firewall.allow_ssh_bastion_to_app will be created
+  + resource "google_compute_firewall" "allow_ssh_bastion_to_app" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite SSH da VM bastion para a VM de aplica├º├úo."
+      + destination_ranges = (known after apply)
+      + direction          = "INGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-app-ssh-bastion"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + source_tags        = [
+          + "bastion",
+        ]
+      + target_tags        = [
+          + "app",
+        ]
+
+      + allow {
+          + ports    = [
+              + "22",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_firewall.allow_ssh_bastion_to_db will be created
+  + resource "google_compute_firewall" "allow_ssh_bastion_to_db" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite administra├º├úo do banco via bastion."
+      + destination_ranges = (known after apply)
+      + direction          = "INGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-db-ssh-bastion"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + source_tags        = [
+          + "bastion",
+        ]
+      + target_tags        = [
+          + "db",
+        ]
+
+      + allow {
+          + ports    = [
+              + "22",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_firewall.allow_ssh_from_admin will be created
+  + resource "google_compute_firewall" "allow_ssh_from_admin" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite SSH apenas do CIDR do administrador autorizado."
+      + destination_ranges = (known after apply)
+      + direction          = "INGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-bastion-ssh"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + source_ranges      = [
+          + "177.73.100.103/32",
+        ]
+      + target_tags        = [
+          + "bastion",
+        ]
+
+      + allow {
+          + ports    = [
+              + "22",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_firewall.deny_app_egress_except_allowed will be created
+  + resource "google_compute_firewall" "deny_app_egress_except_allowed" {
+      + creation_timestamp = (known after apply)
+      + description        = "Bloqueia saida da aplicacao que nao esteja explicitamente permitida."
+      + destination_ranges = [
+          + "0.0.0.0/0",
+        ]
+      + direction          = "EGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-app-egress-deny-all"
+      + network            = "vpc-grupo-x"
+      + priority           = 65534
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + target_tags        = [
+          + "app",
+        ]
+
+      + deny {
+          + ports    = []
+          + protocol = "all"
+        }
+    }
+
+  # google_compute_firewall.deny_db_egress_except_allowed will be created
+  + resource "google_compute_firewall" "deny_db_egress_except_allowed" {
+      + creation_timestamp = (known after apply)
+      + description        = "Bloqueia toda saida da VM privada nao explicitamente permitida."
+      + destination_ranges = [
+          + "0.0.0.0/0",
+        ]
+      + direction          = "EGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-db-egress-deny-all"
+      + network            = "vpc-grupo-x"
+      + priority           = 65534
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + target_tags        = [
+          + "db",
+        ]
+
+      + deny {
+          + ports    = []
+          + protocol = "all"
+        }
+    }
+
+  # google_compute_firewall.egress_app_allowed will be created
+  + resource "google_compute_firewall" "egress_app_allowed" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite saida HTTP/HTTPS/DNS da aplicacao e PostgreSQL para o banco."
+      + destination_ranges = [
+          + "0.0.0.0/0",
+        ]
+      + direction          = "EGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-app-egress-allowed"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + target_tags        = [
+          + "app",
+        ]
+
+      + allow {
+          + ports    = [
+              + "53",
+            ]
+          + protocol = "udp"
+        }
+      + allow {
+          + ports    = [
+              + "80",
+              + "443",
+              + "53",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_firewall.egress_dns will be created
+  + resource "google_compute_firewall" "egress_dns" {
+      + creation_timestamp = (known after apply)
+      + description        = "Restringe a sa├¡da da VM privada apenas para DNS."
+      + destination_ranges = [
+          + "0.0.0.0/0",
+        ]
+      + direction          = "EGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-db-egress-dns"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + target_tags        = [
+          + "db",
+        ]
+
+      + allow {
+          + ports    = [
+              + "53",
+            ]
+          + protocol = "tcp"
+        }
+      + allow {
+          + ports    = [
+              + "53",
+            ]
+          + protocol = "udp"
+        }
+    }
+
+  # google_compute_firewall.egress_http_https will be created
+  + resource "google_compute_firewall" "egress_http_https" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite apenas acesso externo HTTP/HTTPS para atualiza├º├Áes e pacotes na VM privada."
+      + destination_ranges = [
+          + "0.0.0.0/0",
+        ]
+      + direction          = "EGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-db-egress-http-https"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + target_tags        = [
+          + "db",
+        ]
+
+      + allow {
+          + ports    = [
+              + "80",
+              + "443",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_firewall.egress_postgres_app_to_db will be created
+  + resource "google_compute_firewall" "egress_postgres_app_to_db" {
+      + creation_timestamp = (known after apply)
+      + description        = "Permite apenas a aplica├º├úo acessar o PostgreSQL na sub-rede privada."
+      + destination_ranges = [
+          + "10.20.10.0/24",
+        ]
+      + direction          = "EGRESS"
+      + enable_logging     = (known after apply)
+      + id                 = (known after apply)
+      + name               = "sg-app-egress-postgres"
+      + network            = "vpc-grupo-x"
+      + priority           = 1000
+      + project            = "crytto-integrador"
+      + self_link          = (known after apply)
+      + target_tags        = [
+          + "app",
+        ]
+
+      + allow {
+          + ports    = [
+              + "5432",
+            ]
+          + protocol = "tcp"
+        }
+    }
+
+  # google_compute_instance.app will be created
+  + resource "google_compute_instance" "app" {
+      + allow_stopping_for_update = true
+      + can_ip_forward            = false
+      + cpu_platform              = (known after apply)
+      + creation_timestamp        = (known after apply)
+      + current_status            = (known after apply)
+      + deletion_protection       = false
+      + effective_labels          = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "papel"                      = "app"
+          + "projeto"                    = "crytto"
+        }
+      + id                        = (known after apply)
+      + instance_id               = (known after apply)
+      + label_fingerprint         = (known after apply)
+      + labels                    = {
+          + "papel" = "app"
+        }
+      + machine_type              = "e2-small"
+      + metadata                  = (known after apply)
+      + metadata_fingerprint      = (known after apply)
+      + min_cpu_platform          = (known after apply)
+      + name                      = "vm-app"
+      + project                   = "crytto-integrador"
+      + self_link                 = (known after apply)
+      + tags                      = [
+          + "app",
+        ]
+      + tags_fingerprint          = (known after apply)
+      + terraform_labels          = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "papel"                      = "app"
+          + "projeto"                    = "crytto"
+        }
+      + zone                      = "us-central1-a"
+
+      + boot_disk {
+          + auto_delete                = true
+          + device_name                = (known after apply)
+          + disk_encryption_key_sha256 = (known after apply)
+          + guest_os_features          = (known after apply)
+          + kms_key_self_link          = (known after apply)
+          + mode                       = "READ_WRITE"
+          + source                     = (known after apply)
+
+          + initialize_params {
+              + architecture           = (known after apply)
+              + image                  = "ubuntu-os-cloud/ubuntu-2204-lts"
+              + labels                 = {
+                  + "ambiente"       = "entrega2"
+                  + "gerenciado-por" = "terraform"
+                  + "grupo"          = "grupo-x"
+                  + "projeto"        = "crytto"
+                }
+              + provisioned_iops       = (known after apply)
+              + provisioned_throughput = (known after apply)
+              + resource_policies      = (known after apply)
+              + size                   = 20
+              + snapshot               = (known after apply)
+              + type                   = "pd-balanced"
+            }
+        }
+
+      + confidential_instance_config (known after apply)
+
+      + guest_accelerator (known after apply)
+
+      + network_interface {
+          + internal_ipv6_prefix_length = (known after apply)
+          + ipv6_access_type            = (known after apply)
+          + ipv6_address                = (known after apply)
+          + name                        = (known after apply)
+          + network                     = (known after apply)
+          + network_attachment          = (known after apply)
+          + network_ip                  = "10.20.1.20"
+          + stack_type                  = (known after apply)
+          + subnetwork                  = (known after apply)
+          + subnetwork_project          = (known after apply)
+
+          + access_config {
+              + nat_ip       = (known after apply)
+              + network_tier = "PREMIUM"
+            }
+        }
+
+      + reservation_affinity (known after apply)
+
+      + scheduling (known after apply)
+
+      + service_account {
+          + email  = "sa-vm-app@crytto-integrador.iam.gserviceaccount.com"
+          + scopes = [
+              + "https://www.googleapis.com/auth/cloud-platform",
+            ]
+        }
+
+      + shielded_instance_config {
+          + enable_integrity_monitoring = true
+          + enable_secure_boot          = true
+          + enable_vtpm                 = true
+        }
+    }
+
+  # google_compute_instance.bastion will be created
+  + resource "google_compute_instance" "bastion" {
+      + allow_stopping_for_update = true
+      + can_ip_forward            = false
+      + cpu_platform              = (known after apply)
+      + creation_timestamp        = (known after apply)
+      + current_status            = (known after apply)
+      + deletion_protection       = false
+      + effective_labels          = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "papel"                      = "bastion"
+          + "projeto"                    = "crytto"
+        }
+      + id                        = (known after apply)
+      + instance_id               = (known after apply)
+      + label_fingerprint         = (known after apply)
+      + labels                    = {
+          + "papel" = "bastion"
+        }
+      + machine_type              = "e2-micro"
+      + metadata                  = {
+          + "block-project-ssh-keys" = "true"
+          + "enable-oslogin"         = "FALSE"
+          + "serial-port-enable"     = "FALSE"
+          + "ssh-keys"               = "crytto:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQxkITHoTKxrP2cCL77lzMOfZNRBrPSuMkguAnLkFRZIc6+Ogyd3AkwqA6ag3wzICyv8rO68dLF00aYMahyxcaNjkTOBOCsh838n+HJCPuVHxrksc48bwLp8gXkKGK6wYTW92vNscJoPJIM8yEtWnVseb1tC6/FWir/JMtwv2OyYhZIJNG6lZzvT36LcLpS8ZSQNwFprGWrTd/9Q3rTKgtFLJ41meyL+VEKrF7PYVnbvvKbUKbeQBUgdsim3GitK6O/k4QgWKo+Bs1CEZmjXngHjsNBCeowv5cXVbp1TA+qymDiAaDfL8X2Ibs789VQUphzBGM6SHSfzrR9UdgEh9z ASUS_FOSTERR\\joaop@ASUS_Fosterr"
+          + "startup-script"         = <<-EOT
+                #!/bin/bash
+                # Fun├º├Áes comuns aos startup scripts das VMs. Executado como root a cada boot; tudo ├® idempotente.
+                # Log: sudo journalctl -u google-startup-scripts.service
+                set -euo pipefail
+                export DEBIAN_FRONTEND=noninteractive
+                
+                APT_OPTS=(-y -o DPkg::Lock::Timeout=600)
+                
+                log() {
+                  echo "[crytto-startup] $*"
+                }
+                
+                # S1: sem autentica├º├úo por senha e sem login direto como root.
+                # O Ubuntu l├¬ sshd_config.d em ordem alfab├®tica e vale o primeiro valor, por isso o prefixo 00-.
+                harden_ssh() {
+                  cat >/etc/ssh/sshd_config.d/00-crytto-hardening.conf <<'EOF'
+                PasswordAuthentication no
+                KbdInteractiveAuthentication no
+                PermitRootLogin no
+                PubkeyAuthentication yes
+                EOF
+                  chmod 0644 /etc/ssh/sshd_config.d/00-crytto-hardening.conf
+                  sshd -t
+                  systemctl reload ssh
+                  log "SSH endurecido"
+                }
+                
+                install_docker() {
+                  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+                    return
+                  fi
+                  log "Instalando Docker Engine e Compose plugin"
+                  apt-get update "${APT_OPTS[@]:1}"
+                  apt-get install "${APT_OPTS[@]}" ca-certificates curl
+                  install -m 0755 -d /etc/apt/keyrings
+                  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+                  chmod a+r /etc/apt/keyrings/docker.asc
+                  # shellcheck disable=SC1091
+                  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+                    >/etc/apt/sources.list.d/docker.list
+                  apt-get update "${APT_OPTS[@]:1}"
+                  apt-get install "${APT_OPTS[@]}" docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+                  systemctl enable --now docker
+                }
+                
+                # L├¬ um segredo do Secret Manager usando a identidade da VM (S5): o token vem do metadata server,
+                # sem nenhuma chave gravada no disco. Repete enquanto a permiss├úo IAM ainda se propaga.
+                get_secret() {
+                  local project="$1" secret="$2" token value attempt
+                  for attempt in $(seq 1 30); do
+                    if token=$(curl -sf -H 'Metadata-Flavor: Google' \
+                      'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' |
+                      python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])') &&
+                      value=$(curl -sf -H "Authorization: Bearer $token" \
+                        "https://secretmanager.googleapis.com/v1/projects/$project/secrets/$secret/versions/latest:access" |
+                        python3 -c 'import base64,json,sys; print(base64.b64decode(json.load(sys.stdin)["payload"]["data"]).decode(), end="")'); then
+                      printf '%s' "$value"
+                      return 0
+                    fi
+                    log "Segredo $secret indispon├¡vel (tentativa $attempt/30); aguardando" >&2
+                    sleep 10
+                  done
+                  log "Falha ao ler o segredo $secret" >&2
+                  return 1
+                }
+                
+                # --- vm-bastion: s├│ repassa SSH ---
+                harden_ssh
+                log "Bastion pronto"
+            EOT
+        }
+      + metadata_fingerprint      = (known after apply)
+      + min_cpu_platform          = (known after apply)
+      + name                      = "vm-bastion"
+      + project                   = "crytto-integrador"
+      + self_link                 = (known after apply)
+      + tags                      = [
+          + "bastion",
+        ]
+      + tags_fingerprint          = (known after apply)
+      + terraform_labels          = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "papel"                      = "bastion"
+          + "projeto"                    = "crytto"
+        }
+      + zone                      = "us-central1-a"
+
+      + boot_disk {
+          + auto_delete                = true
+          + device_name                = (known after apply)
+          + disk_encryption_key_sha256 = (known after apply)
+          + guest_os_features          = (known after apply)
+          + kms_key_self_link          = (known after apply)
+          + mode                       = "READ_WRITE"
+          + source                     = (known after apply)
+
+          + initialize_params {
+              + architecture           = (known after apply)
+              + image                  = "ubuntu-os-cloud/ubuntu-2204-lts"
+              + labels                 = {
+                  + "ambiente"       = "entrega2"
+                  + "gerenciado-por" = "terraform"
+                  + "grupo"          = "grupo-x"
+                  + "projeto"        = "crytto"
+                }
+              + provisioned_iops       = (known after apply)
+              + provisioned_throughput = (known after apply)
+              + resource_policies      = (known after apply)
+              + size                   = 10
+              + snapshot               = (known after apply)
+              + type                   = "pd-balanced"
+            }
+        }
+
+      + confidential_instance_config (known after apply)
+
+      + guest_accelerator (known after apply)
+
+      + network_interface {
+          + internal_ipv6_prefix_length = (known after apply)
+          + ipv6_access_type            = (known after apply)
+          + ipv6_address                = (known after apply)
+          + name                        = (known after apply)
+          + network                     = (known after apply)
+          + network_attachment          = (known after apply)
+          + network_ip                  = "10.20.1.10"
+          + stack_type                  = (known after apply)
+          + subnetwork                  = (known after apply)
+          + subnetwork_project          = (known after apply)
+
+          + access_config {
+              + nat_ip       = (known after apply)
+              + network_tier = "PREMIUM"
+            }
+        }
+
+      + reservation_affinity (known after apply)
+
+      + scheduling (known after apply)
+
+      + shielded_instance_config {
+          + enable_integrity_monitoring = true
+          + enable_secure_boot          = true
+          + enable_vtpm                 = true
+        }
+    }
+
+  # google_compute_instance.db will be created
+  + resource "google_compute_instance" "db" {
+      + allow_stopping_for_update = true
+      + can_ip_forward            = false
+      + cpu_platform              = (known after apply)
+      + creation_timestamp        = (known after apply)
+      + current_status            = (known after apply)
+      + deletion_protection       = false
+      + effective_labels          = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "papel"                      = "db"
+          + "projeto"                    = "crytto"
+        }
+      + id                        = (known after apply)
+      + instance_id               = (known after apply)
+      + label_fingerprint         = (known after apply)
+      + labels                    = {
+          + "papel" = "db"
+        }
+      + machine_type              = "e2-small"
+      + metadata                  = {
+          + "block-project-ssh-keys" = "true"
+          + "enable-oslogin"         = "FALSE"
+          + "serial-port-enable"     = "FALSE"
+          + "ssh-keys"               = "crytto:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQxkITHoTKxrP2cCL77lzMOfZNRBrPSuMkguAnLkFRZIc6+Ogyd3AkwqA6ag3wzICyv8rO68dLF00aYMahyxcaNjkTOBOCsh838n+HJCPuVHxrksc48bwLp8gXkKGK6wYTW92vNscJoPJIM8yEtWnVseb1tC6/FWir/JMtwv2OyYhZIJNG6lZzvT36LcLpS8ZSQNwFprGWrTd/9Q3rTKgtFLJ41meyL+VEKrF7PYVnbvvKbUKbeQBUgdsim3GitK6O/k4QgWKo+Bs1CEZmjXngHjsNBCeowv5cXVbp1TA+qymDiAaDfL8X2Ibs789VQUphzBGM6SHSfzrR9UdgEh9z ASUS_FOSTERR\\joaop@ASUS_Fosterr"
+          + "startup-script"         = <<-EOT
+                #!/bin/bash
+                # Fun├º├Áes comuns aos startup scripts das VMs. Executado como root a cada boot; tudo ├® idempotente.
+                # Log: sudo journalctl -u google-startup-scripts.service
+                set -euo pipefail
+                export DEBIAN_FRONTEND=noninteractive
+                
+                APT_OPTS=(-y -o DPkg::Lock::Timeout=600)
+                
+                log() {
+                  echo "[crytto-startup] $*"
+                }
+                
+                # S1: sem autentica├º├úo por senha e sem login direto como root.
+                # O Ubuntu l├¬ sshd_config.d em ordem alfab├®tica e vale o primeiro valor, por isso o prefixo 00-.
+                harden_ssh() {
+                  cat >/etc/ssh/sshd_config.d/00-crytto-hardening.conf <<'EOF'
+                PasswordAuthentication no
+                KbdInteractiveAuthentication no
+                PermitRootLogin no
+                PubkeyAuthentication yes
+                EOF
+                  chmod 0644 /etc/ssh/sshd_config.d/00-crytto-hardening.conf
+                  sshd -t
+                  systemctl reload ssh
+                  log "SSH endurecido"
+                }
+                
+                install_docker() {
+                  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+                    return
+                  fi
+                  log "Instalando Docker Engine e Compose plugin"
+                  apt-get update "${APT_OPTS[@]:1}"
+                  apt-get install "${APT_OPTS[@]}" ca-certificates curl
+                  install -m 0755 -d /etc/apt/keyrings
+                  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+                  chmod a+r /etc/apt/keyrings/docker.asc
+                  # shellcheck disable=SC1091
+                  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+                    >/etc/apt/sources.list.d/docker.list
+                  apt-get update "${APT_OPTS[@]:1}"
+                  apt-get install "${APT_OPTS[@]}" docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+                  systemctl enable --now docker
+                }
+                
+                # L├¬ um segredo do Secret Manager usando a identidade da VM (S5): o token vem do metadata server,
+                # sem nenhuma chave gravada no disco. Repete enquanto a permiss├úo IAM ainda se propaga.
+                get_secret() {
+                  local project="$1" secret="$2" token value attempt
+                  for attempt in $(seq 1 30); do
+                    if token=$(curl -sf -H 'Metadata-Flavor: Google' \
+                      'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token' |
+                      python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])') &&
+                      value=$(curl -sf -H "Authorization: Bearer $token" \
+                        "https://secretmanager.googleapis.com/v1/projects/$project/secrets/$secret/versions/latest:access" |
+                        python3 -c 'import base64,json,sys; print(base64.b64decode(json.load(sys.stdin)["payload"]["data"]).decode(), end="")'); then
+                      printf '%s' "$value"
+                      return 0
+                    fi
+                    log "Segredo $secret indispon├¡vel (tentativa $attempt/30); aguardando" >&2
+                    sleep 10
+                  done
+                  log "Falha ao ler o segredo $secret" >&2
+                  return 1
+                }
+                
+                # --- vm-db: PostgreSQL 16 em container, dados no disco de boot (CMEK) ---
+                harden_ssh
+                install_docker
+                
+                install -d -m 0700 /etc/crytto
+                install -d -m 0700 /var/lib/crytto/pgdata
+                
+                DB_PASSWORD="$(get_secret "crytto-integrador" "crytto-db-password")"
+                umask 077
+                cat >/etc/crytto/db.env <<EOF
+                POSTGRES_DB=crytto
+                POSTGRES_USER=crytto
+                POSTGRES_PASSWORD=$DB_PASSWORD
+                EOF
+                unset DB_PASSWORD
+                umask 022
+                
+                if ! docker ps -a --format '{{.Names}}' | grep -qx crytto-db; then
+                  log "Criando container crytto-db"
+                  docker run -d --name crytto-db --restart unless-stopped \
+                    --env-file /etc/crytto/db.env \
+                    -v /var/lib/crytto/pgdata:/var/lib/postgresql/data \
+                    -p 5432:5432 \
+                    postgres:16-alpine
+                else
+                  docker start crytto-db >/dev/null
+                fi
+                
+                for attempt in $(seq 1 30); do
+                  if docker exec crytto-db pg_isready -U "crytto" -d "crytto" >/dev/null 2>&1; then
+                    log "PostgreSQL pronto"
+                    exit 0
+                  fi
+                  log "Aguardando PostgreSQL ($attempt/30)"
+                  sleep 5
+                done
+                log "PostgreSQL n├úo respondeu a tempo"
+                exit 1
+            EOT
+        }
+      + metadata_fingerprint      = (known after apply)
+      + min_cpu_platform          = (known after apply)
+      + name                      = "vm-db"
+      + project                   = "crytto-integrador"
+      + self_link                 = (known after apply)
+      + tags                      = [
+          + "db",
+        ]
+      + tags_fingerprint          = (known after apply)
+      + terraform_labels          = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "papel"                      = "db"
+          + "projeto"                    = "crytto"
+        }
+      + zone                      = "us-central1-a"
+
+      + boot_disk {
+          + auto_delete                = true
+          + device_name                = (known after apply)
+          + disk_encryption_key_sha256 = (known after apply)
+          + guest_os_features          = (known after apply)
+          + kms_key_self_link          = (known after apply)
+          + mode                       = "READ_WRITE"
+          + source                     = (known after apply)
+
+          + initialize_params {
+              + architecture           = (known after apply)
+              + image                  = "ubuntu-os-cloud/ubuntu-2204-lts"
+              + labels                 = {
+                  + "ambiente"       = "entrega2"
+                  + "gerenciado-por" = "terraform"
+                  + "grupo"          = "grupo-x"
+                  + "projeto"        = "crytto"
+                }
+              + provisioned_iops       = (known after apply)
+              + provisioned_throughput = (known after apply)
+              + resource_policies      = (known after apply)
+              + size                   = 20
+              + snapshot               = (known after apply)
+              + type                   = "pd-balanced"
+            }
+        }
+
+      + confidential_instance_config (known after apply)
+
+      + guest_accelerator (known after apply)
+
+      + network_interface {
+          + internal_ipv6_prefix_length = (known after apply)
+          + ipv6_access_type            = (known after apply)
+          + ipv6_address                = (known after apply)
+          + name                        = (known after apply)
+          + network                     = (known after apply)
+          + network_attachment          = (known after apply)
+          + network_ip                  = "10.20.10.10"
+          + stack_type                  = (known after apply)
+          + subnetwork                  = (known after apply)
+          + subnetwork_project          = (known after apply)
+        }
+
+      + reservation_affinity (known after apply)
+
+      + scheduling (known after apply)
+
+      + service_account {
+          + email  = "sa-vm-db@crytto-integrador.iam.gserviceaccount.com"
+          + scopes = [
+              + "https://www.googleapis.com/auth/cloud-platform",
+            ]
+        }
+
+      + shielded_instance_config {
+          + enable_integrity_monitoring = true
+          + enable_secure_boot          = true
+          + enable_vtpm                 = true
+        }
+    }
+
+  # google_compute_network.vpc will be created
+  + resource "google_compute_network" "vpc" {
+      + auto_create_subnetworks                   = false
+      + bgp_always_compare_med                    = (known after apply)
+      + bgp_best_path_selection_mode              = (known after apply)
+      + bgp_inter_region_cost                     = (known after apply)
+      + delete_default_routes_on_create           = false
+      + description                               = "VPC do projeto Crytto com segmenta├º├úo p├║blica e privada."
+      + gateway_ipv4                              = (known after apply)
+      + id                                        = (known after apply)
+      + internal_ipv6_range                       = (known after apply)
+      + mtu                                       = 1460
+      + name                                      = "vpc-grupo-x"
+      + network_firewall_policy_enforcement_order = "AFTER_CLASSIC_FIREWALL"
+      + network_id                                = (known after apply)
+      + numeric_id                                = (known after apply)
+      + project                                   = "crytto-integrador"
+      + routing_mode                              = "REGIONAL"
+      + self_link                                 = (known after apply)
+    }
+
+  # google_compute_route.internet_egress will be created
+  + resource "google_compute_route" "internet_egress" {
+      + as_paths                   = (known after apply)
+      + creation_timestamp         = (known after apply)
+      + description                = "Rota padr├úo para sa├¡da para a internet."
+      + dest_range                 = "0.0.0.0/0"
+      + id                         = (known after apply)
+      + name                       = "route-internet-default"
+      + network                    = "vpc-grupo-x"
+      + next_hop_gateway           = "default-internet-gateway"
+      + next_hop_hub               = (known after apply)
+      + next_hop_instance_zone     = (known after apply)
+      + next_hop_inter_region_cost = (known after apply)
+      + next_hop_ip                = (known after apply)
+      + next_hop_med               = (known after apply)
+      + next_hop_network           = (known after apply)
+      + next_hop_origin            = (known after apply)
+      + next_hop_peering           = (known after apply)
+      + priority                   = 1000
+      + project                    = "crytto-integrador"
+      + route_status               = (known after apply)
+      + route_type                 = (known after apply)
+      + self_link                  = (known after apply)
+      + warnings                   = (known after apply)
+    }
+
+  # google_compute_router.nat_router will be created
+  + resource "google_compute_router" "nat_router" {
+      + creation_timestamp = (known after apply)
+      + description        = "Router usado para o Cloud NAT da sub-rede privada."
+      + id                 = (known after apply)
+      + name               = "nat-router-grupo-x"
+      + network            = (known after apply)
+      + project            = "crytto-integrador"
+      + region             = "us-central1"
+      + self_link          = (known after apply)
+
+      + bgp {
+          + advertise_mode     = "DEFAULT"
+          + asn                = 64514
+          + identifier_range   = (known after apply)
+          + keepalive_interval = 20
+        }
+    }
+
+  # google_compute_router_nat.nat will be created
+  + resource "google_compute_router_nat" "nat" {
+      + auto_network_tier                   = (known after apply)
+      + drain_nat_ips                       = (known after apply)
+      + enable_dynamic_port_allocation      = (known after apply)
+      + enable_endpoint_independent_mapping = (known after apply)
+      + endpoint_types                      = (known after apply)
+      + icmp_idle_timeout_sec               = 30
+      + id                                  = (known after apply)
+      + min_ports_per_vm                    = (known after apply)
+      + name                                = "nat-grupo-x"
+      + nat_ip_allocate_option              = "MANUAL_ONLY"
+      + nat_ips                             = (known after apply)
+      + project                             = "crytto-integrador"
+      + region                              = "us-central1"
+      + router                              = "nat-router-grupo-x"
+      + source_subnetwork_ip_ranges_to_nat  = "LIST_OF_SUBNETWORKS"
+      + tcp_established_idle_timeout_sec    = 1200
+      + tcp_time_wait_timeout_sec           = 120
+      + tcp_transitory_idle_timeout_sec     = 30
+      + type                                = "PUBLIC"
+      + udp_idle_timeout_sec                = 30
+
+      + log_config {
+          + enable = true
+          + filter = "ERRORS_ONLY"
+        }
+
+      + subnetwork {
+          + name                     = (known after apply)
+          + secondary_ip_range_names = []
+          + source_ip_ranges_to_nat  = [
+              + "ALL_IP_RANGES",
+            ]
+        }
+    }
+
+  # google_compute_subnetwork.priv_a will be created
+  + resource "google_compute_subnetwork" "priv_a" {
+      + creation_timestamp         = (known after apply)
+      + description                = "Sub-rede privada para a VM de banco e servi├ºos internos."
+      + enable_flow_logs           = (known after apply)
+      + external_ipv6_prefix       = (known after apply)
+      + fingerprint                = (known after apply)
+      + gateway_address            = (known after apply)
+      + id                         = (known after apply)
+      + internal_ipv6_prefix       = (known after apply)
+      + ip_cidr_range              = "10.20.10.0/24"
+      + ipv6_cidr_range            = (known after apply)
+      + ipv6_gce_endpoint          = (known after apply)
+      + name                       = "priv-a"
+      + network                    = (known after apply)
+      + private_ip_google_access   = true
+      + private_ipv6_google_access = (known after apply)
+      + project                    = "crytto-integrador"
+      + purpose                    = (known after apply)
+      + region                     = "us-central1"
+      + self_link                  = (known after apply)
+      + stack_type                 = (known after apply)
+      + state                      = (known after apply)
+      + subnetwork_id              = (known after apply)
+
+      + secondary_ip_range (known after apply)
+    }
+
+  # google_compute_subnetwork.pub_a will be created
+  + resource "google_compute_subnetwork" "pub_a" {
+      + creation_timestamp         = (known after apply)
+      + description                = "Sub-rede p├║blica para bastion e VM de aplica├º├úo."
+      + enable_flow_logs           = (known after apply)
+      + external_ipv6_prefix       = (known after apply)
+      + fingerprint                = (known after apply)
+      + gateway_address            = (known after apply)
+      + id                         = (known after apply)
+      + internal_ipv6_prefix       = (known after apply)
+      + ip_cidr_range              = "10.20.1.0/24"
+      + ipv6_cidr_range            = (known after apply)
+      + ipv6_gce_endpoint          = (known after apply)
+      + name                       = "pub-a"
+      + network                    = (known after apply)
+      + private_ip_google_access   = true
+      + private_ipv6_google_access = (known after apply)
+      + project                    = "crytto-integrador"
+      + purpose                    = (known after apply)
+      + region                     = "us-central1"
+      + self_link                  = (known after apply)
+      + stack_type                 = (known after apply)
+      + state                      = (known after apply)
+      + subnetwork_id              = (known after apply)
+
+      + secondary_ip_range (known after apply)
+    }
+
+  # google_kms_crypto_key.cmek will be created
+  + resource "google_kms_crypto_key" "cmek" {
+      + crypto_key_backend         = (known after apply)
+      + destroy_scheduled_duration = "86400s"
+      + effective_labels           = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + id                         = (known after apply)
+      + import_only                = (known after apply)
+      + key_ring                   = (known after apply)
+      + name                       = "cmek-crytto"
+      + primary                    = (known after apply)
+      + purpose                    = "ENCRYPT_DECRYPT"
+      + rotation_period            = "7776000s"
+      + terraform_labels           = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+
+      + version_template (known after apply)
+    }
+
+  # google_kms_crypto_key_iam_member.compute_agent will be created
+  + resource "google_kms_crypto_key_iam_member" "compute_agent" {
+      + crypto_key_id = (known after apply)
+      + etag          = (known after apply)
+      + id            = (known after apply)
+      + member        = "serviceAccount:service-570580250342@compute-system.iam.gserviceaccount.com"
+      + role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+    }
+
+  # google_kms_crypto_key_iam_member.storage_agent will be created
+  + resource "google_kms_crypto_key_iam_member" "storage_agent" {
+      + crypto_key_id = (known after apply)
+      + etag          = (known after apply)
+      + id            = (known after apply)
+      + member        = (known after apply)
+      + role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+    }
+
+  # google_kms_key_ring.this will be created
+  + resource "google_kms_key_ring" "this" {
+      + id       = (known after apply)
+      + location = "us-central1"
+      + name     = (known after apply)
+      + project  = "crytto-integrador"
+    }
+
+  # google_project_service.apis["cloudkms.googleapis.com"] will be created
+  + resource "google_project_service" "apis" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "crytto-integrador"
+      + service            = "cloudkms.googleapis.com"
+    }
+
+  # google_project_service.apis["compute.googleapis.com"] will be created
+  + resource "google_project_service" "apis" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "crytto-integrador"
+      + service            = "compute.googleapis.com"
+    }
+
+  # google_project_service.apis["iam.googleapis.com"] will be created
+  + resource "google_project_service" "apis" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "crytto-integrador"
+      + service            = "iam.googleapis.com"
+    }
+
+  # google_project_service.apis["secretmanager.googleapis.com"] will be created
+  + resource "google_project_service" "apis" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "crytto-integrador"
+      + service            = "secretmanager.googleapis.com"
+    }
+
+  # google_project_service.apis["storage.googleapis.com"] will be created
+  + resource "google_project_service" "apis" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "crytto-integrador"
+      + service            = "storage.googleapis.com"
+    }
+
+  # google_secret_manager_secret.db_password will be created
+  + resource "google_secret_manager_secret" "db_password" {
+      + create_time           = (known after apply)
+      + deletion_protection   = false
+      + effective_annotations = (known after apply)
+      + effective_labels      = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + expire_time           = (known after apply)
+      + id                    = (known after apply)
+      + name                  = (known after apply)
+      + project               = "crytto-integrador"
+      + secret_id             = "crytto-db-password"
+      + terraform_labels      = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+
+      + replication {
+          + auto {
+            }
+        }
+    }
+
+  # google_secret_manager_secret_iam_member.app_db_password will be created
+  + resource "google_secret_manager_secret_iam_member" "app_db_password" {
+      + etag      = (known after apply)
+      + id        = (known after apply)
+      + member    = "serviceAccount:sa-vm-app@crytto-integrador.iam.gserviceaccount.com"
+      + project   = (known after apply)
+      + role      = "roles/secretmanager.secretAccessor"
+      + secret_id = (known after apply)
+    }
+
+  # google_secret_manager_secret_iam_member.db_db_password will be created
+  + resource "google_secret_manager_secret_iam_member" "db_db_password" {
+      + etag      = (known after apply)
+      + id        = (known after apply)
+      + member    = "serviceAccount:sa-vm-db@crytto-integrador.iam.gserviceaccount.com"
+      + project   = (known after apply)
+      + role      = "roles/secretmanager.secretAccessor"
+      + secret_id = (known after apply)
+    }
+
+  # google_secret_manager_secret_version.db_password will be created
+  + resource "google_secret_manager_secret_version" "db_password" {
+      + create_time            = (known after apply)
+      + deletion_policy        = "DELETE"
+      + destroy_time           = (known after apply)
+      + enabled                = true
+      + id                     = (known after apply)
+      + is_secret_data_base64  = false
+      + name                   = (known after apply)
+      + secret                 = (known after apply)
+      + secret_data_wo         = (write-only attribute)
+      + secret_data_wo_version = 1
+      + version                = (known after apply)
+    }
+
+  # google_service_account.app will be created
+  + resource "google_service_account" "app" {
+      + account_id   = "sa-vm-app"
+      + disabled     = false
+      + display_name = "Identidade da vm-app (leitura da senha do banco)"
+      + email        = "sa-vm-app@crytto-integrador.iam.gserviceaccount.com"
+      + id           = (known after apply)
+      + member       = "serviceAccount:sa-vm-app@crytto-integrador.iam.gserviceaccount.com"
+      + name         = (known after apply)
+      + project      = "crytto-integrador"
+      + unique_id    = (known after apply)
+    }
+
+  # google_service_account.db will be created
+  + resource "google_service_account" "db" {
+      + account_id   = "sa-vm-db"
+      + disabled     = false
+      + display_name = "Identidade da vm-db (senha do banco e grava├º├úo de backup)"
+      + email        = "sa-vm-db@crytto-integrador.iam.gserviceaccount.com"
+      + id           = (known after apply)
+      + member       = "serviceAccount:sa-vm-db@crytto-integrador.iam.gserviceaccount.com"
+      + name         = (known after apply)
+      + project      = "crytto-integrador"
+      + unique_id    = (known after apply)
+    }
+
+  # google_storage_bucket.backup will be created
+  + resource "google_storage_bucket" "backup" {
+      + effective_labels            = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + force_destroy               = false
+      + id                          = (known after apply)
+      + location                    = "US-CENTRAL1"
+      + name                        = (known after apply)
+      + project                     = (known after apply)
+      + project_number              = (known after apply)
+      + public_access_prevention    = "enforced"
+      + rpo                         = (known after apply)
+      + self_link                   = (known after apply)
+      + storage_class               = "STANDARD"
+      + terraform_labels            = {
+          + "ambiente"                   = "entrega2"
+          + "gerenciado-por"             = "terraform"
+          + "goog-terraform-provisioned" = "true"
+          + "grupo"                      = "grupo-x"
+          + "projeto"                    = "crytto"
+        }
+      + time_created                = (known after apply)
+      + uniform_bucket_level_access = true
+      + updated                     = (known after apply)
+      + url                         = (known after apply)
+
+      + encryption {
+          + default_kms_key_name = (known after apply)
+        }
+
+      + lifecycle_rule {
+          + action {
+              + type          = "Delete"
+                # (1 unchanged attribute hidden)
+            }
+          + condition {
+              + age                    = 1
+              + matches_prefix         = [
+                  + "diario/",
+                ]
+              + matches_storage_class  = []
+              + matches_suffix         = []
+              + with_state             = (known after apply)
+                # (3 unchanged attributes hidden)
+            }
+        }
+
+      + soft_delete_policy {
+          + effective_time             = (known after apply)
+          + retention_duration_seconds = 0
+        }
+
+      + versioning {
+          + enabled = false
+        }
+
+      + website (known after apply)
+    }
+
+  # google_storage_bucket_iam_member.db_backup_writer will be created
+  + resource "google_storage_bucket_iam_member" "db_backup_writer" {
+      + bucket = (known after apply)
+      + etag   = (known after apply)
+      + id     = (known after apply)
+      + member = "serviceAccount:sa-vm-db@crytto-integrador.iam.gserviceaccount.com"
+      + role   = "roles/storage.objectCreator"
+    }
+
+  # random_id.backup_suffix will be created
+  + resource "random_id" "backup_suffix" {
+      + b64_std     = (known after apply)
+      + b64_url     = (known after apply)
+      + byte_length = 3
+      + dec         = (known after apply)
+      + hex         = (known after apply)
+      + id          = (known after apply)
+    }
+
+  # random_id.kms_suffix will be created
+  + resource "random_id" "kms_suffix" {
+      + b64_std     = (known after apply)
+      + b64_url     = (known after apply)
+      + byte_length = 3
+      + dec         = (known after apply)
+      + hex         = (known after apply)
+      + id          = (known after apply)
+    }
+
+Plan: 42 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + app_public_ip            = (known after apply)
+  + app_url                  = (known after apply)
+  + backup_bucket_name       = (known after apply)
+  + backup_bucket_url        = (known after apply)
+  + bastion_public_ip        = (known after apply)
+  + db_password_secret       = "crytto-db-password"
+  + db_service_account_email = "sa-vm-db@crytto-integrador.iam.gserviceaccount.com"
+  + kms_key_id               = (known after apply)
+  + nat_ip                   = (known after apply)
+  + nat_public_ip            = (known after apply)
+  + private_ips              = {
+      + vm-app     = "10.20.1.20"
+      + vm-bastion = "10.20.1.10"
+      + vm-db      = "10.20.10.10"
+    }
+  + private_subnet_name      = "priv-a"
+  + public_subnet_name       = "pub-a"
+  + ssh_app                  = (known after apply)
+  + ssh_bastion              = (known after apply)
+  + ssh_db                   = (known after apply)
+  + vpc_name                 = "vpc-grupo-x"

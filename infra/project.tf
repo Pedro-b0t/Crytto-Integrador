@@ -7,6 +7,7 @@ resource "google_project_service" "apis" {
     "cloudkms.googleapis.com",
     "secretmanager.googleapis.com",
     "iam.googleapis.com",
+    "storage.googleapis.com",
   ])
 
   service            = each.value
