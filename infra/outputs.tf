@@ -57,3 +57,13 @@ output "kms_key_id" {
   description = "Chave CMEK usada nos discos (reutilizável no bucket de backup)."
   value       = google_kms_crypto_key.cmek.id
 }
+
+output "backup_bucket_name" {
+  description = "Nome do bucket de backup do PostgreSQL."
+  value       = google_storage_bucket.backup.name
+}
+
+output "backup_bucket_url" {
+  description = "Destino dos backups diários."
+  value       = "gs://${google_storage_bucket.backup.name}/diario/"
+}
