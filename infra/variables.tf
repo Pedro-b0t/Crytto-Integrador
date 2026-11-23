@@ -226,6 +226,27 @@ variable "db_password" {
   }
 }
 
+# ---------------------------------------------------------------------------
+# Backup (Parte D, política mínima)
+# ---------------------------------------------------------------------------
+
+variable "backup_retention_days" {
+  type        = number
+  description = "Dias até a expiração das cópias em diario/ (política mínima: no máximo 2, seção 6.3)."
+  default     = 1
+
+  validation {
+    condition     = var.backup_retention_days >= 1 && var.backup_retention_days <= 2
+    error_message = "A política mínima exige expiração em no máximo 2 dias."
+  }
+}
+
+variable "backup_schedule" {
+  type        = string
+  description = "Agenda do dump diário na vm-db, no formato OnCalendar do systemd (horário UTC da VM)."
+  default     = "*-*-* 06:00:00"
+}
+
 variable "db_password_version" {
   type        = number
   description = "Incrementar para gravar uma nova versão da senha no Secret Manager (rotação)."

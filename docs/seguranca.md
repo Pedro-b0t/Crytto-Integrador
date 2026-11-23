@@ -10,8 +10,8 @@ Controles S1 a S8, tratamento dos achados das ferramentas de análise e análise
 | S2 | Saída restrita | Implementado nas três VMs | [infra/security.tf](../infra/security.tf) | Victor |
 | S3 | HTTPS | Implementado | [nginx.https.conf](../nginx.https.conf), [infra/templates/app.sh.tftpl](../infra/templates/app.sh.tftpl) | Pedro |
 | S4 | Gestão de segredos | Implementado | [infra/secrets.tf](../infra/secrets.tf), [infra/variables.tf](../infra/variables.tf) (`db_password`) | Pedro |
-| S5 | Menor privilégio para as instâncias | Implementado para a senha do banco; falta a permissão do bucket de backup | [infra/iam.tf](../infra/iam.tf) | Pedro, João |
-| S6 | Criptografia em repouso | Implementado nos discos; falta o bucket de backup | [infra/kms.tf](../infra/kms.tf), [infra/compute.tf](../infra/compute.tf) | Pedro, João |
+| S5 | Menor privilégio para as instâncias | Implementado: senha do banco e gravação de backup | [infra/iam.tf](../infra/iam.tf) | Pedro, João |
+| S6 | Criptografia em repouso | Implementado nos discos e no bucket de backup | [infra/kms.tf](../infra/kms.tf), [infra/compute.tf](../infra/compute.tf), [infra/backup.tf](../infra/backup.tf) | Pedro, João |
 | S7 | Análise automatizada | Executada: Checkov (Ansible e Terraform), Trivy (Terraform com rede e firewall) e Gitleaks (histórico). Repetir o Gitleaks antes da tag `entrega-2` | [docs/evidencias/](evidencias/) | Ana |
 | S8 | Proteção da conta (MFA) | Pendente: captura de tela | `docs/evidencias/` | Pedro |
 
@@ -82,7 +82,7 @@ gcloud secrets versions list crytto-db-password
 |---|---|---|
 | `vm-bastion` | nenhuma | Nenhuma: só repassa SSH |
 | `vm-app` | `sa-vm-app` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password` |
-| `vm-db` | `sa-vm-db` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password`; gravação no bucket de backup (a definir por João) |
+| `vm-db` | `sa-vm-db` | `roles/secretmanager.secretAccessor` somente no segredo `crytto-db-password`; `roles/storage.objectCreator` somente no bucket de backup (cria objetos; não lista, lê, sobrescreve nem apaga) |
 
 As permissões são concedidas no próprio recurso (IAM do segredo), não no projeto. As VMs obtêm tokens de curta duração do metadata server; nenhuma chave de service account é criada ou gravada nas instâncias. Nenhuma VM usa a service account padrão do Compute Engine (que tem papel de editor no projeto).
 
@@ -91,7 +91,7 @@ As permissões são concedidas no próprio recurso (IAM do segredo), não no pro
 - Key ring `kr-crytto-<sufixo>` e chave `cmek-crytto` no Cloud KMS (`us-central1`), com rotação automática a cada 90 dias.
 - Os três discos de boot usam a chave por `kms_key_self_link` ([infra/compute.tf](../infra/compute.tf)). Os dados do PostgreSQL ficam no disco de boot da `vm-db`; snapshots desses discos herdam a mesma chave.
 - Apenas o agente de serviço do Compute Engine recebe `roles/cloudkms.cryptoKeyEncrypterDecrypter` na chave.
-- O bucket de backup (João) deve usar a mesma chave (output `kms_key_id`), concedendo o papel ao agente de serviço do Cloud Storage.
+- O bucket de backup usa a mesma chave como `default_kms_key_name` ([infra/backup.tf](../infra/backup.tf)); o agente de serviço do Cloud Storage recebe `roles/cloudkms.cryptoKeyEncrypterDecrypter` na chave. Cada cópia gravada herda a chave (`gcloud storage objects describe ... --format="value(kms_key)"`).
 
 Verificação:
 
@@ -107,7 +107,7 @@ Ferramentas usadas e relatórios em [docs/evidencias/](evidencias/):
 |---|---|---|---|
 | Checkov 3.4.5 | Ansible (`infra/ansible/`) | 4 aprovadas, 3 falhas: senha fixa em `group_vars/all.yml` e dois health checks por HTTP local | `checkov-antes.txt` |
 | Checkov 3.4.5 | Terraform (`infra/*.tf`) | 24 aprovadas, 6 falhas: IP público (2), bloqueio de chaves SSH do projeto (3) e proteção contra exclusão da chave KMS (1) | `checkov-terraform.txt` |
-| Trivy 0.76.2 | Terraform, já com a rede e o firewall (`network.tf`, `security.tf`) | 2 altas (IP público), 5 médias (OS Login desativado, flow logs) e 2 baixas (VPC flow logs). Nenhuma crítica | `trivy-terraform.txt` |
+| Trivy 0.76.2 | Terraform completo, com rede, firewall e bucket de backup | 2 altas (IP público), 6 médias (OS Login desativado, flow logs, versionamento do bucket) e 2 baixas (VPC flow logs). Nenhuma crítica | `trivy-terraform.txt` |
 | Gitleaks | Histórico completo do Git | Nenhum segredo encontrado | `gitleaks-relatorio.json`, `gitleaks-final.json` |
 
 O Checkov sem conta na plataforma Prisma Cloud não informa severidade; por isso a severidade da tabela de achados vem do Trivy quando a mesma regra foi apontada pelas duas ferramentas. O Gitleaks deve ser executado novamente sobre o histórico final, imediatamente antes da tag `entrega-2`.
@@ -132,6 +132,7 @@ Todo achado de severidade alta ou crítica tem decisão registrada (Corrigido ou
 | CKV_GCP_32: bloqueio de chaves SSH do projeto (3 ocorrências) | Não informada pelo Checkov | `google_compute_instance.bastion`, `.app` e `.db` | **Aceito (falso positivo)** | `block-project-ssh-keys = "true"` está em `local.common_metadata` ([infra/locals.tf](../infra/locals.tf)) e é aplicado às três VMs por `merge()` em [infra/compute.tf](../infra/compute.tf). O Checkov não avalia essa composição. Conferível após o apply com `gcloud compute instances describe vm-app --format="value(metadata.items)"` |
 | CKV_GCP_82: chave KMS sem proteção contra exclusão | Não informada pelo Checkov | `google_kms_crypto_key.cmek` | **Aceito** | A regra pede `lifecycle { prevent_destroy = true }`, o que impediria o `terraform destroy` obrigatório após a apresentação (seção 11 do enunciado). Os discos cifrados pela chave são destruídos junto com o ambiente, e os backups não dependem dela para restauração. Em produção, a proteção seria habilitada e o `destroy_scheduled_duration` aumentado |
 | GCP-0076 / GCP-0029: sub-redes sem flow logs (2 ocorrências cada) | Média e baixa (Trivy) | `google_compute_subnetwork.pub_a` e `.priv_a` | **Aceito** | Os flow logs geram custo por volume de log e não são exigidos no escopo. Risco residual: sem registro de fluxos para investigar um incidente de rede |
+| GCP-0078: bucket sem versionamento | Média (Trivy) | `google_storage_bucket.backup` | **Aceito** | O versionamento foi desativado de propósito: a política mínima exige expiração em até 2 dias, e versões não correntes ficariam retidas além disso. A proteção contra sobrescrita e exclusão vem da permissão: a `sa-vm-db` só cria objetos e cada cópia tem nome único (data e hora) |
 | CKV2_ANSIBLE_1: health check por HTTP (2 ocorrências) | Não informada pelo Checkov | `infra/ansible/playbook.yml` (Validar backend e Validar frontend) | **Aceito** | A verificação acessa `localhost` dentro da própria VM local, sem passar pela rede; o playbook é usado apenas no ambiente local com Vagrant |
 ## Análise de ameaças
 
@@ -140,5 +141,5 @@ Todo achado de severidade alta ou crítica tem decisão registrada (Corrigido ou
 | Ataque de força bruta ou roubo de chave SSH para acessar o bastion e alcançar as VMs internas | Bastion, aplicação e banco de dados | Acesso SSH restrito ao CIDR autorizado do grupo, autenticação por chave, login root desabilitado e bloqueio de chaves SSH do projeto declarado no Terraform | Se uma chave privada autorizada for roubada, um invasor poderá tentar acessar o bastion e alcançar os recursos internos. |
 | Alteração indevida do saldo de Crytts de outro usuário por meio da API | API da aplicação, contas dos usuários e saldos de Crytts | Comunicação HTTPS e banco de dados sem acesso público direto, reduzindo a exposição dos dados durante o transporte e o armazenamento | A rota `PUT /api/users/:id/balance` pode permitir alterações de saldo sem verificar adequadamente a autorização do usuário. HTTPS não impede esse tipo de ataque. É necessário implementar autenticação e autorização no backend para garantir que cada usuário só possa realizar operações permitidas. |
 | Invasão da VM da aplicação para acessar credenciais e dados do banco | `vm-app`, Secret Manager e `vm-db` | A senha do banco é armazenada no Secret Manager, com acesso limitado às contas de serviço autorizadas. O banco não possui acesso público direto, e a comunicação entre as VMs é controlada por regras de firewall | Se um invasor comprometer a `vm-app`, poderá utilizar as permissões da própria máquina para obter a credencial do banco e tentar acessar ou modificar os dados. Os controles reduzem a exposição, mas não eliminam esse risco. |
-| Exclusão ou alteração indevida dos backups após o comprometimento do banco de dados | `vm-db`, arquivos de backup e bucket do Cloud Storage | A arquitetura prevê armazenar os backups em um bucket separado, com criptografia e permissões restritas para a conta de serviço responsável. A permissão efetiva da `sa-vm-db` no bucket é definida na parte do João | Se um invasor comprometer a VM do banco e conseguir permissões de exclusão ou sobrescrita no bucket, poderá destruir os backups e dificultar a recuperação dos dados. É necessário verificar as permissões efetivas e considerar mecanismos de retenção ou versionamento. |
+| Exclusão ou alteração indevida dos backups após o comprometimento do banco de dados | `vm-db`, arquivos de backup e bucket do Cloud Storage | Backups em bucket separado da VM, com CMEK (S6). A `sa-vm-db` tem só `roles/storage.objectCreator`: testado na `vm-db`, listar, ler e apagar retornam 403 (S5) | O invasor ainda pode gravar arquivos novos (lixo) no bucket e impedir backups futuros. Uma conta com papel de dono no projeto consegue apagar o bucket; em produção, usar bucket lock e projeto separado para os backups ([backup.md](backup.md), B6) |
 | Vazamento de senhas, chaves de acesso ou outros segredos pelo repositório GitHub | Repositório Git, credenciais do banco de dados e infraestrutura GCP | Uso do Secret Manager na infraestrutura GCP, variáveis de ambiente para fornecer credenciais e análise do histórico do repositório com Gitleaks | Se uma credencial real for publicada no Git, ela continua acessível pelo histórico mesmo após a remoção do arquivo e precisa ser revogada. A senha padrão do Vagrant que existia no histórico (`crytto`) nunca foi usada na GCP. O Gitleaks é executado novamente antes da tag `entrega-2`. |

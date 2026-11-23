@@ -26,13 +26,64 @@ else
   docker start crytto-db >/dev/null
 fi
 
+db_ready=0
 for attempt in $(seq 1 30); do
   if docker exec crytto-db pg_isready -U "${db_user}" -d "${db_name}" >/dev/null 2>&1; then
     log "PostgreSQL pronto"
-    exit 0
+    db_ready=1
+    break
   fi
   log "Aguardando PostgreSQL ($attempt/30)"
   sleep 5
 done
-log "PostgreSQL não respondeu a tempo"
-exit 1
+if [ "$db_ready" -ne 1 ]; then
+  log "PostgreSQL não respondeu a tempo"
+  exit 1
+fi
+
+# --- Política mínima de backup (B6): dump diário para gs://${backup_bucket}/diario/ ---
+cat >/etc/crytto/backup.env <<EOF
+BUCKET=${backup_bucket}
+DB_NAME=${db_name}
+DB_USER=${db_user}
+EOF
+chmod 0600 /etc/crytto/backup.env
+
+cat >/usr/local/bin/crytto-backup.sh <<'BACKUP_SCRIPT'
+${backup_script}
+BACKUP_SCRIPT
+chmod 0750 /usr/local/bin/crytto-backup.sh
+
+cat >/etc/systemd/system/crytto-backup.service <<'EOF'
+[Unit]
+Description=Backup logico do PostgreSQL da Crytto para o Cloud Storage
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/crytto-backup.sh
+EOF
+
+cat >/etc/systemd/system/crytto-backup.timer <<'EOF'
+[Unit]
+Description=Backup diario do PostgreSQL da Crytto
+
+[Timer]
+OnCalendar=${backup_schedule}
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now crytto-backup.timer
+
+# Gera uma cópia já na criação do ambiente (a apresentação exige uma cópia existente).
+if systemctl start crytto-backup.service; then
+  log "Backup inicial enviado ao bucket"
+else
+  log "Falha no backup inicial; veja: journalctl -u crytto-backup.service"
+fi
+exit 0

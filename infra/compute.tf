@@ -107,6 +107,7 @@ resource "google_compute_instance" "db" {
     google_kms_crypto_key_iam_member.compute_agent,
     google_secret_manager_secret_version.db_password,
     google_secret_manager_secret_iam_member.db_db_password,
+    google_storage_bucket_iam_member.db_backup_writer,
   ]
 }
 

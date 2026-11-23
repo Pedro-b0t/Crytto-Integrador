@@ -12,5 +12,5 @@ Capturas de tela e relatórios. **Não incluir** IDs de conta de faturamento, e-
 | Saída pelo IP do NAT e isolamento (D4) | `d4-nat.png` | Victor | Pendente |
 | Relatório Trivy ou Checkov (S7) | `trivy-config.txt` | Ana | Pendente |
 | Relatório Gitleaks (S7) | `gitleaks.json` | Ana | Pendente |
-| Configuração do backup e cópia existente (D6) | `d6-backup.png` | João | Pendente |
+| Configuração do backup e cópia existente (D6) | `d6-backup.png` | João | Pendente (primeira cópia gerada em 23/11 00:40 UTC: `diario/crytto-20261123T004027Z.sql.gz`) |
 | `terraform destroy` e console sem recursos restantes | `destroy.png` | Victor | Após a apresentação |

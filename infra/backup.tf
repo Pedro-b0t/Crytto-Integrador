@@ -1,4 +1,3 @@
-
 # B6 / S5 / S6 - Backup mínimo do PostgreSQL
 
 resource "random_id" "backup_suffix" {
@@ -25,7 +24,8 @@ resource "google_storage_bucket" "backup" {
 
   location      = var.region
   storage_class = "STANDARD"
-  force_destroy = false
+  # Permite o terraform destroy obrigatório após a apresentação mesmo com backups no bucket.
+  force_destroy = true
 
   uniform_bucket_level_access = true
   public_access_prevention    = "enforced"
@@ -40,10 +40,11 @@ resource "google_storage_bucket" "backup" {
     retention_duration_seconds = 0
   }
 
-  # Expiração dos backups no prefixo diario/.
+  # Política mínima (seção 6.3): cópias em diario/ expiram em no máximo 2 dias.
+  # A exclusão pelo ciclo de vida é assíncrona e pode ocorrer até ~24 h depois de atingida a idade.
   lifecycle_rule {
     condition {
-      age            = 5
+      age            = var.backup_retention_days
       matches_prefix = ["diario/"]
     }
 
